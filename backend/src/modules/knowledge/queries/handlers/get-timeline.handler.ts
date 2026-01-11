@@ -62,10 +62,15 @@ export class GetTimelineHandler implements IQueryHandler<GetTimelineQuery> {
       persons: event.relatedPersons.map(
         (personEvent) => personEvent.person.fullName,
       ),
-      document: {
-        filePath: event.document.filePath,
-        fileName: event.document.fileName,
-      },
+      document: event.document
+        ? {
+            filePath: event.document.filePath,
+            fileName: event.document.fileName,
+          }
+        : {
+            filePath: '',
+            fileName: 'Manual Entry',
+          },
     }));
   }
 }

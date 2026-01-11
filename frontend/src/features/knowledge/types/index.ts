@@ -50,7 +50,7 @@ export interface HistoricalEvent {
   dateEnd?: string;
   dateType?: string;
   location?: string;
-  document: EventDocument;
+  document?: EventDocument;
   persons: EventPerson[];
   createdAt: string;
   updatedAt: string;
@@ -61,4 +61,21 @@ export interface SearchResult {
   events: HistoricalEvent[];
   totalPersons: number;
   totalEvents: number;
+}
+
+export interface TimelineEventDocument {
+  filePath: string;
+  fileName: string;
+}
+
+export interface TimelineEvent {
+  id: string;
+  title: string;
+  description?: string;
+  dateStart?: string;
+  dateEnd?: string;
+  dateType?: string;
+  location?: string;
+  persons: string[];
+  document: TimelineEventDocument;
 }

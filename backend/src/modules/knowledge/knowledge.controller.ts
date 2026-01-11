@@ -1,32 +1,56 @@
 import {
   Controller,
   Get,
+  Post,
+  Put,
+  Delete,
   Param,
+  Body,
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
+import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { GetPersonQuery } from './queries/impl/get-person.query';
 import { GetEventQuery } from './queries/impl/get-event.query';
 import { SearchEverythingQuery } from './queries/impl/search-everything.query';
 import { GetTimelineQuery } from './queries/impl/get-timeline.query';
+import { CreatePersonCommand } from './commands/impl/create-person.command';
+import { UpdatePersonCommand } from './commands/impl/update-person.command';
+import { DeletePersonCommand } from './commands/impl/delete-person.command';
+import { CreateEventCommand } from './commands/impl/create-event.command';
+import { UpdateEventCommand } from './commands/impl/update-event.command';
+import { DeleteEventCommand } from './commands/impl/delete-event.command';
 import { PersonResponseDto } from './dto/person-response.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { SearchResultDto } from './dto/search-result.dto';
 import { TimelineEventDto } from './dto/timeline-event.dto';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { UpdatePersonDto } from './dto/update-person.dto';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { EnrichedPersonDto } from './dto/enriched-person.dto';
+import { EnrichPersonRequestDto } from './dto/enrich-person-request.dto';
+import { PersonEnrichmentService } from './domain/person-enrichment.service';
 
 @ApiTags('knowledge')
 @Controller('knowledge')
 export class KnowledgeController {
-  constructor(private readonly queryBus: QueryBus) {}
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+    private readonly enrichmentService: PersonEnrichmentService,
+  ) {}
 
   @Get('persons/:id')
   @ApiOperation({
@@ -137,5 +161,174 @@ export class KnowledgeController {
       offset,
     );
     return await this.queryBus.execute(query);
+  }
+
+  @Post('enrich-person')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Enrich person data using AI' })
+  @ApiBody({ type: EnrichPersonRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Person data enriched',
+    type: EnrichedPersonDto,
+  })
+  async enrichPerson(
+    @Body() dto: EnrichPersonRequestDto,
+  ): Promise<EnrichedPersonDto> {
+    return await this.enrichmentService.enrichPerson(dto.name);
+  }
+
+  @Post('persons')
+  @ApiOperation({ summary: 'Create a new person' })
+  @ApiBody({ type: CreatePersonDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Person created successfully',
+    type: PersonResponseDto,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Person with this name already exists',
+  })
+  async createPerson(
+    @Body() dto: CreatePersonDto,
+  ): Promise<PersonResponseDto> {
+    const command = new CreatePersonCommand(
+      dto.fullName,
+      dto.firstName,
+      dto.lastName,
+      dto.title,
+      dto.birthDate ? new Date(dto.birthDate) : undefined,
+      dto.deathDate ? new Date(dto.deathDate) : undefined,
+      dto.description,
+    );
+    return await this.commandBus.execute(command);
+  }
+
+  @Put('persons/:id')
+  @ApiOperation({ summary: 'Update an existing person' })
+  @ApiParam({ name: 'id', description: 'Person ID' })
+  @ApiBody({ type: UpdatePersonDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Person updated successfully',
+    type: PersonResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Person not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Person with this name already exists',
+  })
+  async updatePerson(
+    @Param('id') id: string,
+    @Body() dto: UpdatePersonDto,
+  ): Promise<PersonResponseDto> {
+    const command = new UpdatePersonCommand(
+      id,
+      dto.fullName,
+      dto.firstName,
+      dto.lastName,
+      dto.title,
+      dto.birthDate ? new Date(dto.birthDate) : undefined,
+      dto.deathDate ? new Date(dto.deathDate) : undefined,
+      dto.description,
+    );
+    return await this.commandBus.execute(command);
+  }
+
+  @Delete('persons/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a person' })
+  @ApiParam({ name: 'id', description: 'Person ID' })
+  @ApiResponse({
+    status: 204,
+    description: 'Person deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Person not found',
+  })
+  async deletePerson(@Param('id') id: string): Promise<void> {
+    const command = new DeletePersonCommand(id);
+    await this.commandBus.execute(command);
+  }
+
+  @Post('events')
+  @ApiOperation({ summary: 'Create a new event' })
+  @ApiBody({ type: CreateEventDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Event created successfully',
+    type: EventResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid document ID',
+  })
+  async createEvent(@Body() dto: CreateEventDto): Promise<EventResponseDto> {
+    const command = new CreateEventCommand(
+      dto.title,
+      dto.description,
+      dto.dateStart ? new Date(dto.dateStart) : undefined,
+      dto.dateEnd ? new Date(dto.dateEnd) : undefined,
+      dto.dateType,
+      dto.location,
+      dto.documentId,
+    );
+    return await this.commandBus.execute(command);
+  }
+
+  @Put('events/:id')
+  @ApiOperation({ summary: 'Update an existing event' })
+  @ApiParam({ name: 'id', description: 'Event ID' })
+  @ApiBody({ type: UpdateEventDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Event updated successfully',
+    type: EventResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Event not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid document ID',
+  })
+  async updateEvent(
+    @Param('id') id: string,
+    @Body() dto: UpdateEventDto,
+  ): Promise<EventResponseDto> {
+    const command = new UpdateEventCommand(
+      id,
+      dto.title,
+      dto.description,
+      dto.dateStart ? new Date(dto.dateStart) : undefined,
+      dto.dateEnd ? new Date(dto.dateEnd) : undefined,
+      dto.dateType,
+      dto.location,
+      dto.documentId,
+    );
+    return await this.commandBus.execute(command);
+  }
+
+  @Delete('events/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an event' })
+  @ApiParam({ name: 'id', description: 'Event ID' })
+  @ApiResponse({
+    status: 204,
+    description: 'Event deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Event not found',
+  })
+  async deleteEvent(@Param('id') id: string): Promise<void> {
+    const command = new DeleteEventCommand(id);
+    await this.commandBus.execute(command);
   }
 }

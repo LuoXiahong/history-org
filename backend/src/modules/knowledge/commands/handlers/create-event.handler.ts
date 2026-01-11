@@ -1,17 +1,54 @@
-import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import {
+  Injectable,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/database/prisma.service';
-import { GetEventQuery } from '../impl/get-event.query';
+import { CreateEventCommand } from '../impl/create-event.command';
 import { EventResponseDto } from '../../dto/event-response.dto';
 
 @Injectable()
-@QueryHandler(GetEventQuery)
-export class GetEventHandler implements IQueryHandler<GetEventQuery> {
+@CommandHandler(CreateEventCommand)
+export class CreateEventHandler
+  implements ICommandHandler<CreateEventCommand>
+{
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(query: GetEventQuery): Promise<EventResponseDto> {
-    const event = await this.prisma.event.findUnique({
-      where: { id: query.eventId },
+  async execute(command: CreateEventCommand): Promise<EventResponseDto> {
+    const {
+      title,
+      description,
+      dateStart,
+      dateEnd,
+      dateType,
+      location,
+      documentId,
+    } = command;
+
+    // If documentId provided, verify Document exists
+    if (documentId) {
+      const document = await this.prisma.document.findUnique({
+        where: { id: documentId },
+      });
+
+      if (!document) {
+        throw new BadRequestException(
+          `Document with ID '${documentId}' not found`,
+        );
+      }
+    }
+
+    // Create Event
+    const event = await this.prisma.event.create({
+      data: {
+        title,
+        description: description || null,
+        dateStart: dateStart || null,
+        dateEnd: dateEnd || null,
+        dateType: dateType || null,
+        location: location || null,
+        documentId: documentId || null,
+      },
       include: {
         document: {
           select: {
@@ -33,10 +70,6 @@ export class GetEventHandler implements IQueryHandler<GetEventQuery> {
         },
       },
     });
-
-    if (!event) {
-      throw new NotFoundException(`Event with ID ${query.eventId} not found`);
-    }
 
     return {
       id: event.id,

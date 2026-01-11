@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Upload, Search, Calendar, Home } from 'lucide-react';
+import { Upload, Search, Calendar, Home, Users, History } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface NavItem {
@@ -11,6 +11,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: Home },
   { path: '/upload', label: 'Upload', icon: Upload },
+  { path: '/people', label: 'People', icon: Users },
+  { path: '/events', label: 'Events', icon: History },
   { path: '/search', label: 'Search', icon: Search },
   { path: '/timeline', label: 'Timeline', icon: Calendar },
 ];

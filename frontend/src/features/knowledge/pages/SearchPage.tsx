@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Users, Calendar, Search as SearchIcon, Inbox } from 'lucide-react';
 import { SearchInput } from '../components/SearchInput';
@@ -23,6 +24,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export function SearchPage() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -113,7 +115,11 @@ export function SearchPage() {
               </div>
               <div className="grid gap-4">
                 {data.persons.map((person) => (
-                  <PersonCard key={person.id} person={person} />
+                  <PersonCard
+                    key={person.id}
+                    person={person}
+                    onClick={() => navigate(`/people/${person.id}`)}
+                  />
                 ))}
               </div>
             </section>

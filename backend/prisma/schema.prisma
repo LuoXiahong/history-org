@@ -41,8 +41,8 @@ model Event {
   location    String?
 
   // Relationships
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   relatedPersons PersonEvent[]
 

@@ -50,8 +50,8 @@ export class EventResponseDto {
   @ApiProperty({ required: false })
   location?: string;
 
-  @ApiProperty({ type: EventDocumentDto })
-  document: EventDocumentDto;
+  @ApiProperty({ type: EventDocumentDto, required: false })
+  document?: EventDocumentDto;
 
   @ApiProperty({ type: [EventPersonDto] })
   persons: EventPersonDto[];
