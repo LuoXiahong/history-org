@@ -1,0 +1,112 @@
+// Prisma schema for History Organizer
+
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
+  moduleFormat  = "cjs"
+}
+
+// Document represents a Markdown file in the file system
+model Document {
+  id           String   @id @default(uuid())
+  filePath     String   @unique // Relative path from base directory
+  fileName     String
+  title        String? // Extracted from frontmatter or first heading
+  contentHash  String // SHA-256 hash of file content
+  lastModified DateTime // File system last modified timestamp
+  indexedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  events  Event[]
+  persons PersonDocument[]
+
+  @@index([filePath])
+  @@index([lastModified])
+  @@index([indexedAt])
+}
+
+// Event represents a historical event extracted from documents
+model Event {
+  id          String    @id @default(uuid())
+  title       String
+  description String? // Extracted description/context
+  dateStart   DateTime? // Start date of the event
+  dateEnd     DateTime? // End date (for events spanning time)
+  dateType    String? // e.g., "exact", "approximate", "decade"
+  location    String?
+
+  // Relationships
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  relatedPersons PersonEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([documentId])
+  @@index([dateStart])
+  @@index([title])
+}
+
+// Person represents a historical person extracted from documents
+model Person {
+  id          String    @id @default(uuid())
+  fullName    String
+  firstName   String?
+  lastName    String?
+  title       String? // e.g., "King", "General", "Philosopher"
+  birthDate   DateTime?
+  deathDate   DateTime?
+  description String? // Extracted context/biography
+
+  // Relationships
+  documents PersonDocument[]
+  events    PersonEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([fullName])
+  @@index([lastName])
+}
+
+// Junction table: Person <-> Document (many-to-many)
+model PersonDocument {
+  id         String   @id @default(uuid())
+  personId   String
+  person     Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  context String? // Snippet of text where person was mentioned
+
+  createdAt DateTime @default(now())
+
+  @@unique([personId, documentId])
+  @@index([personId])
+  @@index([documentId])
+}
+
+// Junction table: Person <-> Event (many-to-many)
+model PersonEvent {
+  id       String @id @default(uuid())
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  eventId  String
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  role    String? // e.g., "participant", "organizer", "victim"
+  context String? // Snippet of text describing the relationship
+
+  createdAt DateTime @default(now())
+
+  @@unique([personId, eventId])
+  @@index([personId])
+  @@index([eventId])
+}

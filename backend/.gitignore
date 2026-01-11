@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment (except test config)
+.env
+.env.local
+
+# Generated Prisma client
+src/generated/
+
+# SQLite databases
+*.db
+
+# IDE
+.idea/
+.vscode/
+
+# Coverage
+coverage/
