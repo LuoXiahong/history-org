@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
-import * as AuthContext from '../context/AuthContext';
+import * as UseAuthModule from '../context/useAuth';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -15,7 +15,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../context/AuthContext', () => ({
+vi.mock('../context/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
@@ -32,7 +32,7 @@ function renderLoginPage() {
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(AuthContext.useAuth).mockReturnValue({
+    vi.mocked(UseAuthModule.useAuth).mockReturnValue({
       login: mockLogin,
       register: vi.fn(),
       logout: vi.fn(),
@@ -82,7 +82,7 @@ describe('LoginPage', () => {
   });
 
   it('should show loading state during login', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({
+    vi.mocked(UseAuthModule.useAuth).mockReturnValue({
       login: mockLogin,
       register: vi.fn(),
       logout: vi.fn(),
