@@ -59,7 +59,8 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    const roles = this.parseRoles(user.roles);
+    // Roles are now stored as native array in PostgreSQL
+    const roles = user.roles as UserRole[];
     const token = this.generateToken({
       id: user.id,
       email: user.email,
@@ -96,7 +97,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
-        roles: JSON.stringify([UserRole.USER]),
+        roles: [UserRole.USER],
         isActive: true,
       },
     });
@@ -177,19 +178,5 @@ export class AuthService {
     };
 
     return value * (multipliers[unit] || 86400);
-  }
-
-  private parseRoles(rolesJson: string): UserRole[] {
-    try {
-      const parsed: unknown = JSON.parse(rolesJson);
-      if (Array.isArray(parsed)) {
-        return parsed.filter((r) =>
-          Object.values(UserRole).includes(r as UserRole),
-        ) as UserRole[];
-      }
-      return [UserRole.USER];
-    } catch {
-      return [UserRole.USER];
-    }
   }
 }

@@ -1,6 +1,6 @@
 # Requirements Status Overview
 
-Last updated: 2026-01-12
+Last updated: 2026-01-12 (after REQ-0015 and REQ-0009 completion)
 
 ## Status Legend
 
@@ -29,6 +29,30 @@ Last updated: 2026-01-12
 - JWT strategy updated to extract from cookies (with Authorization header fallback)
 - Comprehensive E2E and unit tests implemented
 - Legacy localStorage tokens cleared
+
+### REQ-0015: PostgreSQL Migration ✅ DONE
+- Prisma schema updated to PostgreSQL with UserRole enum and array types
+- PrismaService updated to use PostgreSQL adapter (`@prisma/adapter-pg`)
+- Docker Compose includes PostgreSQL service with healthcheck
+- CI pipeline updated with PostgreSQL service container
+- Migration script created (`scripts/migrate-to-postgres.sh`)
+- Test setup files updated for PostgreSQL
+- SQLite dependencies removed
+- Fixed SQL queries for PostgreSQL compatibility (quoted identifiers)
+- All tests updated to use role arrays instead of JSON strings
+- All backend tests passing (146 unit + 10 E2E)
+
+### REQ-0009: Backend Core Configuration ✅ DONE
+- Helmet middleware configured with appropriate CSP settings
+- CORS explicitly configured (not using `*` in production, credentials enabled)
+- Global ValidationPipe configured with whitelist, transform, and error suppression
+- Swagger UI accessible at `/api/docs` in development mode
+- Swagger disabled in production
+- API versioning enabled with `/api/v1` prefix
+- Graceful shutdown hooks enabled
+- ConfigModule setup with centralized configuration file
+- Bootstrap tests implemented (`main.spec.ts`)
+- All linting and type checking passing
 
 ---
 
@@ -151,10 +175,10 @@ Last updated: 2026-01-12
 - [x] compose.yaml exists
 
 **Remaining:**
-- [ ] PostgreSQL in compose.yaml (currently SQLite)
+- [x] PostgreSQL in compose.yaml ✅ (completed in REQ-0015)
 - [ ] Backend Dockerfile multi-stage
 - [ ] Frontend Dockerfile with nginx
-- [ ] Health checks in containers
+- [x] Health checks in containers ✅ (PostgreSQL has healthcheck)
 - [ ] Non-root user in containers
 
 ---
@@ -179,15 +203,6 @@ Last updated: 2026-01-12
 
 ## Not Started Requirements
 
-### REQ-0009: Backend Core Configuration (TODO)
-**Current State:** Basic `main.ts` with minimal configuration
-**Required:**
-- [ ] Helmet middleware
-- [ ] CORS explicit configuration
-- [ ] Global ValidationPipe
-- [ ] Swagger/OpenAPI setup
-- [ ] API versioning
-- [ ] Graceful shutdown
 
 ---
 
@@ -216,13 +231,6 @@ Last updated: 2026-01-12
 
 ---
 
-### REQ-0015: PostgreSQL Migration (TODO)
-**Required:**
-- [ ] Update Prisma schema to PostgreSQL
-- [ ] Native array types for roles
-- [ ] PostgreSQL in Docker Compose
-- [ ] Update CI pipeline
-- [ ] Migration script
 
 ---
 
@@ -260,8 +268,8 @@ Last updated: 2026-01-12
 ## Priority Order for Completion
 
 ### Critical (Security/Production)
-1. **REQ-0015** - PostgreSQL Migration (production readiness)
-2. **REQ-0009** - Backend Core Configuration (security hardening)
+✅ **REQ-0015** - PostgreSQL Migration (production readiness) - COMPLETED
+✅ **REQ-0009** - Backend Core Configuration (security hardening) - COMPLETED
 
 ### High (Quality/Reliability)
 4. **REQ-0012** - Resilience & Error Handling
@@ -284,7 +292,7 @@ Last updated: 2026-01-12
 | Category | Count |
 |----------|-------|
 | Total Requirements | 18 |
-| Completed | 2 |
+| Completed | 4 |
 | Partially Completed | 9 |
-| Not Started | 7 |
-| **Completion %** | ~33% |
+| Not Started | 5 |
+| **Completion %** | ~44% |

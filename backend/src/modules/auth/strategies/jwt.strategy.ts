@@ -54,27 +54,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('User account is deactivated');
     }
 
-    // Parse roles from JSON string
-    const roles = this.parseRoles(user.roles);
-
+    // Roles are now stored as native array in PostgreSQL
     return {
       id: user.id,
       email: user.email,
-      roles,
+      roles: user.roles as UserRole[],
     };
-  }
-
-  private parseRoles(rolesJson: string): UserRole[] {
-    try {
-      const parsed: unknown = JSON.parse(rolesJson);
-      if (Array.isArray(parsed)) {
-        return parsed.filter((r) =>
-          Object.values(UserRole).includes(r as UserRole),
-        ) as UserRole[];
-      }
-      return [UserRole.USER];
-    } catch {
-      return [UserRole.USER];
-    }
   }
 }

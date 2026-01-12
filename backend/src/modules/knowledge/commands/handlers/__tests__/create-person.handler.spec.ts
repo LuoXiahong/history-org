@@ -18,6 +18,9 @@ describe('CreatePersonHandler', () => {
     handler = module.get<CreatePersonHandler>(CreatePersonHandler);
     prisma = module.get<PrismaService>(PrismaService);
 
+    // Ensure Prisma is connected
+    await prisma.$connect();
+
     // Clean up test data
     await prisma.personEvent.deleteMany({});
     await prisma.personDocument.deleteMany({});
@@ -28,11 +31,19 @@ describe('CreatePersonHandler', () => {
 
   afterEach(async () => {
     // Clean up test data
-    await prisma.personEvent.deleteMany({});
-    await prisma.personDocument.deleteMany({});
-    await prisma.event.deleteMany({});
-    await prisma.person.deleteMany({});
-    await prisma.document.deleteMany({});
+    if (prisma) {
+      await prisma.personEvent.deleteMany({});
+      await prisma.personDocument.deleteMany({});
+      await prisma.event.deleteMany({});
+      await prisma.person.deleteMany({});
+      await prisma.document.deleteMany({});
+    }
+  });
+
+  afterAll(async () => {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   });
 
   it('should be defined', () => {

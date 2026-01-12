@@ -1,7 +1,7 @@
 // Prisma schema for History Organizer
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 generator client {
@@ -10,18 +10,24 @@ generator client {
   moduleFormat  = "cjs"
 }
 
+// User roles enum
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
 // User for authentication and authorization
-// Note: roles stored as JSON string since SQLite doesn't support arrays
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
+  id          String     @id @default(uuid())
+  email       String     @unique
   password    String
   name        String?
-  roles       String    @default("[\"USER\"]") // JSON array of roles: USER, ADMIN, MODERATOR
-  isActive    Boolean   @default(true)
+  roles       UserRole[] @default([USER])
+  isActive    Boolean    @default(true)
   lastLoginAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@map("users")
 }

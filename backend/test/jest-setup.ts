@@ -1,7 +1,7 @@
-// Jest setup file - ensure DATABASE_URL uses absolute path for SQLite
-import path from 'path';
-
-const testDbPath = path.resolve(__dirname, '..', 'test.db');
-process.env.DATABASE_URL = `file:${testDbPath}`;
+// Jest setup file - ensure DATABASE_URL is set for PostgreSQL
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL =
+    'postgresql://test:test@localhost:5432/test?schema=public';
+}
 process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
 process.env.JWT_EXPIRATION = '1d';

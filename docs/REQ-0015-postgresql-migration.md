@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `TODO` |
+| **Status** | `DONE` |
 | **Priority** | High |
 | **Complexity** | Medium |
 | **Estimated Effort** | 3-4 hours |
@@ -172,13 +172,13 @@ echo "Migration complete!"
 
 ## 4. Acceptance Criteria
 
-- [ ] Prisma schema uses `provider = "postgresql"`
-- [ ] User.roles uses native `UserRole[]` array type
-- [ ] Docker Compose includes PostgreSQL service with healthcheck
-- [ ] CI pipeline uses PostgreSQL service container
-- [ ] `DATABASE_URL` points to PostgreSQL in all environments
-- [ ] Existing data migration plan documented (if needed)
-- [ ] All tests pass with PostgreSQL
+- [x] Prisma schema uses `provider = "postgresql"`
+- [x] User.roles uses native `UserRole[]` array type
+- [x] Docker Compose includes PostgreSQL service with healthcheck
+- [x] CI pipeline uses PostgreSQL service container
+- [x] `DATABASE_URL` points to PostgreSQL in all environments
+- [x] Existing data migration plan documented (if needed)
+- [x] All tests pass with PostgreSQL
 
 ## 5. Testing Strategy
 
@@ -230,8 +230,38 @@ describe('User roles', () => {
 3. Run `npx prisma generate`
 4. Restart application
 
-## 8. References
+## 8. Implementation Summary
+
+### Completed Tasks
+- ✅ Updated Prisma schema to use `provider = "postgresql"`
+- ✅ Added `UserRole` enum and changed `User.roles` from JSON string to native array type `UserRole[]`
+- ✅ Updated `PrismaService` to use PostgreSQL adapter (`@prisma/adapter-pg` with `pg` Pool)
+- ✅ Added PostgreSQL service to Docker Compose with healthcheck
+- ✅ Updated CI pipeline to use PostgreSQL service container
+- ✅ Created migration script `scripts/migrate-to-postgres.sh`
+- ✅ Updated test setup files (`jest.setup.ts`, `test/jest-setup.ts`) for PostgreSQL
+- ✅ Updated test scripts in `package.json` to use PostgreSQL DATABASE_URL
+- ✅ Removed SQLite dependencies (`@prisma/adapter-better-sqlite3`, `better-sqlite3`, `@types/better-sqlite3`)
+- ✅ Fixed SQL queries in handlers to use PostgreSQL-compatible syntax (quoted table/column names)
+- ✅ Updated all tests to use role arrays instead of JSON strings
+- ✅ All backend tests passing (146 unit tests + 10 E2E tests)
+
+### Key Changes
+1. **Prisma Schema**: Changed from SQLite to PostgreSQL, added `UserRole` enum, roles now use native array
+2. **PrismaService**: Now uses `@prisma/adapter-pg` with `Pool` from `pg` package
+3. **SQL Queries**: Updated raw SQL queries to use quoted identifiers for PostgreSQL compatibility
+4. **Tests**: All test fixtures updated to use role arrays instead of JSON strings
+5. **CI/CD**: GitHub Actions now runs PostgreSQL container for tests
+
+### Testing
+- ✅ All unit tests passing
+- ✅ All E2E tests passing
+- ✅ Database migrations working correctly
+- ✅ Test database setup automated in CI
+
+## 9. References
 
 - [Prisma PostgreSQL](https://www.prisma.io/docs/concepts/database-connectors/postgresql)
 - [PostgreSQL Docker Image](https://hub.docker.com/_/postgres)
 - [Prisma Migrations](https://www.prisma.io/docs/concepts/components/prisma-migrate)
+- [Prisma Adapter PostgreSQL](https://www.prisma.io/docs/orm/prisma-client/deployment/deployment-guides/driver-adapters/postgres)

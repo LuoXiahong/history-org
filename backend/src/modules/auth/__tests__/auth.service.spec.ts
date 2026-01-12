@@ -27,7 +27,7 @@ describe('AuthService', () => {
     email: 'test@example.com',
     password: 'hashedpassword123',
     name: 'Test User',
-    roles: JSON.stringify([UserRole.USER]),
+    roles: [UserRole.USER],
     isActive: true,
     lastLoginAt: null,
     createdAt: new Date(),
@@ -225,7 +225,7 @@ describe('AuthService', () => {
           email: 'newuser@example.com',
           password: 'hashedpassword123',
           name: 'New User',
-          roles: JSON.stringify([UserRole.USER]),
+          roles: [UserRole.USER],
           isActive: true,
         },
       });

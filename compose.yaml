@@ -1,5 +1,28 @@
 services:
   # ============================================
+  # PostgreSQL Database
+  # ============================================
+  database:
+    image: postgres:16-alpine
+    container_name: history-org-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-historyorg}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-historyorg_secret}
+      POSTGRES_DB: ${DB_NAME:-historyorg}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-historyorg}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - history-network
+
+  # ============================================
   # NestJS Backend
   # ============================================
   backend:
@@ -11,13 +34,14 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      DATABASE_URL: file:/app/data/history.db
+      DATABASE_URL: postgresql://${DB_USER:-historyorg}:${DB_PASSWORD:-historyorg_secret}@database:5432/${DB_NAME:-historyorg}?schema=public
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       PORT: 3000
     ports:
       - "${BACKEND_PORT:-3000}:3000"
-    volumes:
-      - backend_data:/app/data
+    depends_on:
+      database:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 30s
@@ -54,7 +78,7 @@ services:
       - history-network
 
 volumes:
-  backend_data:
+  postgres_data:
     driver: local
 
 networks:

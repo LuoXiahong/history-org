@@ -59,7 +59,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });
@@ -97,7 +97,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });
@@ -182,7 +182,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });
@@ -205,7 +205,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });
@@ -251,7 +251,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });
@@ -283,7 +283,7 @@ describe('Auth (e2e)', () => {
         data: {
           email: 'test@example.com',
           password: hashedPassword,
-          roles: JSON.stringify(['USER']),
+          roles: ['USER'],
           isActive: true,
         },
       });

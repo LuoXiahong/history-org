@@ -21,11 +21,12 @@ export class CreatePersonHandler implements ICommandHandler<CreatePersonCommand>
     } = command;
 
     // Check for duplicate by normalized name (case-insensitive)
-    // Use Prisma's case-insensitive search with raw SQL for SQLite
+    // Use Prisma's case-insensitive search with raw SQL
+    // In PostgreSQL, table names are case-sensitive when quoted, lowercase when not quoted
     const existingPerson = (await this.prisma.$queryRaw<
       Array<{ id: string; fullName: string }>
     >`
-      SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = LOWER(TRIM(${fullName})) LIMIT 1
+      SELECT id, "fullName" FROM "Person" WHERE LOWER(TRIM("fullName")) = LOWER(TRIM(${fullName})) LIMIT 1
     `) as Array<{ id: string; fullName: string }>;
 
     if (existingPerson && existingPerson.length > 0) {

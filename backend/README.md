@@ -69,9 +69,12 @@ src/
 Create a `.env` file:
 
 ```env
-DATABASE_URL=file:./data/history.db
+DATABASE_URL=postgresql://historyorg:historyorg_secret@localhost:5432/historyorg?schema=public
 OPENAI_API_KEY=sk-your-key-here
 PORT=3000
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRATION=1d
+CORS_ORIGINS=http://localhost:5173
 ```
 
 ## API Documentation
