@@ -84,7 +84,7 @@ describe('Auth (e2e)', () => {
       const responseBodyRaw: unknown = response.body;
       const responseBody = responseBodyRaw as Record<string, unknown>;
       expect(responseBody).toMatchObject({
-        id: expect.any(String),
+        id: expect.stringMatching(/.*/),
         email: 'test@example.com',
         roles: ['USER'],
       });
