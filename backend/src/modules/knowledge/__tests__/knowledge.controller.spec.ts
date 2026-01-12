@@ -186,7 +186,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('GET /knowledge/search', () => {
     it('should return search results', () => {
       return request(app.getHttpServer())
-        .get('/knowledge/search?q=Test')
+        .get('/api/v1/knowledge/search?q=Test')
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as SearchResponse;
@@ -229,7 +229,7 @@ describe('KnowledgeController (e2e)', () => {
     it('should filter by date range', () => {
       return request(app.getHttpServer())
         .get(
-          '/knowledge/timeline?dateStart=2024-01-01T00:00:00Z&dateEnd=2024-12-31T23:59:59Z',
+          '/api/v1/knowledge/timeline?dateStart=2024-01-01T00:00:00Z&dateEnd=2024-12-31T23:59:59Z',
         )
         .expect(200)
         .expect((res: request.Response) => {
@@ -405,7 +405,7 @@ describe('KnowledgeController (e2e)', () => {
       // Note: This test will return minimal data if OpenAI API key is not configured
       // In a real scenario, you'd mock the OpenAI service
       return request(app.getHttpServer())
-        .post('/knowledge/enrich-person')
+        .post('/api/v1/knowledge/enrich-person')
         .send({
           name: 'Napoleon Bonaparte',
         })
@@ -424,7 +424,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should require name field', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/enrich-person')
+        .post('/api/v1/knowledge/enrich-person')
         .send({})
         .expect(400);
     });
