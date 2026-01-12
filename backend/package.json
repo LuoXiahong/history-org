@@ -105,7 +105,7 @@
       "^@/(.*)$": "<rootDir>/$1",
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@shared/(.*)$": "<rootDir>/shared/$1",
-      "^@db$": "<rootDir>/generated/prisma/client",
+      "^@db$": "<rootDir>/generated/prisma/client.ts",
       "^@db/(.*)$": "<rootDir>/generated/prisma/$1",
       "^(\\.{1,2}/.*)\\.js$": "$1"
     }

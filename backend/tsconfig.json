@@ -25,7 +25,7 @@
       "@/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@shared/*": ["src/shared/*"],
-      "@db": ["src/generated/prisma/client"],
+      "@db": ["src/generated/prisma/client.ts"],
       "@db/*": ["src/generated/prisma/*"]
     }
   }

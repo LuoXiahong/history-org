@@ -31,6 +31,9 @@ RUN npm ci
 
 COPY . .
 
+# Generate Prisma client before build
+RUN npx prisma generate
+
 RUN npm run build
 
 # ============================================
