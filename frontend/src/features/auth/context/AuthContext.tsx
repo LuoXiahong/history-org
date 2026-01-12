@@ -1,30 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from 'react';
-import type {
-  User,
-  AuthState,
-  LoginCredentials,
-  RegisterCredentials,
-} from '../types/auth.types';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import type { User, AuthState } from '../types/auth.types';
 import { authApi } from '../api/auth.api';
+import { AuthContext, type AuthContextType } from './auth-context';
 
 const TOKEN_KEY = 'history_org_token';
 const USER_KEY = 'history_org_user';
-
-interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
-  refreshUser: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function getStoredToken(): string | null {
   try {
@@ -133,10 +113,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Validate token on mount
   useEffect(() => {
-    if (state.token && state.isLoading) {
-      refreshUser();
+    async function validateToken(): Promise<void> {
+      if (!state.token) return;
+      try {
+        const user = await authApi.getCurrentUser();
+        setState((prev) => ({ ...prev, user, isLoading: false }));
+        storeAuth(state.token, user);
+      } catch {
+        clearStoredAuth();
+        setState({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
     }
-  }, [state.token, state.isLoading, refreshUser]);
+
+    if (state.token && state.isLoading) {
+      validateToken();
+    }
+  }, [state.token, state.isLoading]);
 
   const value: AuthContextType = {
     ...state,
@@ -147,12 +144,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }
