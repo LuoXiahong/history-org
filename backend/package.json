@@ -19,7 +19,7 @@
     "test": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:watch": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "pretest:cov": "npm run db:test:push",
-    "test:cov": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:cov": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand",
     "pretest:e2e": "npm run db:test:push",
     "test:e2e": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./test/jest-e2e.json"
   },
