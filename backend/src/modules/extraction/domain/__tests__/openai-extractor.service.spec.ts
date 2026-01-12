@@ -54,20 +54,25 @@ describe('OpenAIExtractorService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should throw error if OPENAI_API_KEY is not configured', async () => {
+  it('should return empty results when OPENAI_API_KEY is not configured', async () => {
     mockConfigService.get.mockReturnValue(undefined);
 
-    await expect(
-      Test.createTestingModule({
-        providers: [
-          OpenAIExtractorService,
-          {
-            provide: ConfigService,
-            useValue: mockConfigService,
-          },
-        ],
-      }).compile(),
-    ).rejects.toThrow('OPENAI_API_KEY is not configured');
+    const testModule = await Test.createTestingModule({
+      providers: [
+        OpenAIExtractorService,
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+      ],
+    }).compile();
+
+    const testService =
+      testModule.get<OpenAIExtractorService>(OpenAIExtractorService);
+    const result = await testService.extractEntities('Test content');
+
+    expect(result.persons).toEqual([]);
+    expect(result.events).toEqual([]);
   });
 
   describe('extractEntities', () => {
