@@ -10,6 +10,22 @@ generator client {
   moduleFormat  = "cjs"
 }
 
+// User for authentication and authorization
+// Note: roles stored as JSON string since SQLite doesn't support arrays
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  name        String?
+  roles       String    @default("[\"USER\"]") // JSON array of roles: USER, ADMIN, MODERATOR
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("users")
+}
+
 // Document represents a Markdown file in the file system
 model Document {
   id           String   @id @default(uuid())

@@ -94,10 +94,10 @@ describe('GetEventHandler', () => {
     expect(result.dateEnd).toEqual(new Date('2024-01-02'));
     expect(result.dateType).toBe('exact');
     expect(result.location).toBe('Test Location');
-    expect(result.document.id).toBe(testDocumentId);
-    expect(result.document.filePath).toMatch(/^test-doc-event-\d+\.md$/);
-    expect(result.document.fileName).toMatch(/^test-doc-event-\d+\.md$/);
-    expect(result.document.title).toBe('Test Document');
+    expect(result.document?.id).toBe(testDocumentId);
+    expect(result.document?.filePath).toMatch(/^test-doc-event-\d+\.md$/);
+    expect(result.document?.fileName).toMatch(/^test-doc-event-\d+\.md$/);
+    expect(result.document?.title).toBe('Test Document');
     expect(result.persons).toHaveLength(1);
     expect(result.persons[0].id).toBe(testPersonId);
     expect(result.persons[0].fullName).toBe('Test Person');

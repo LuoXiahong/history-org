@@ -4,9 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Edit, Trash2, Calendar, FileText, User } from 'lucide-react';
 import { getPerson, updatePerson, deletePerson, type UpdatePersonDto } from '../api/knowledge.api';
 import { PersonForm } from '../components/PersonForm';
-import type { Person } from '../types';
 
-export function PersonDetailsPage() {
+function PersonDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -223,3 +222,6 @@ export function PersonDetailsPage() {
     </div>
   );
 }
+
+export default PersonDetailsPage;
+export { PersonDetailsPage };

@@ -1,29 +1,38 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary } from './components/error/ErrorBoundary';
+import { ToastProvider } from './components/feedback/ToastProvider';
 import { MainLayout } from './shared/components/Layout/MainLayout';
-import { Dashboard } from './pages/Dashboard';
-import { UploadPage } from './features/ingestion/pages/UploadPage';
-import { PeoplePage } from './features/knowledge/pages/PeoplePage';
-import { EventsPage } from './features/knowledge/pages/EventsPage';
-import { PersonDetailsPage } from './features/knowledge/pages/PersonDetailsPage';
-import { SearchPage } from './features/knowledge/pages/SearchPage';
-import { TimelinePage } from './features/knowledge/pages/TimelinePage';
+import { AuthProvider } from './features/auth';
+import { routes } from './routes/routes';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30 * 1000,
+      retry: 1,
+    },
+  },
+});
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <MainLayout />,
+    children: routes,
+  },
+]);
 
 function App() {
   return (
-    <BrowserRouter>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/people" element={<PeoplePage />} />
-          <Route path="/people/:id" element={<PersonDetailsPage />} />
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/timeline" element={<TimelinePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </MainLayout>
-    </BrowserRouter>
+    <ErrorBoundary fallbackTitle="Application Error">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ToastProvider />
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

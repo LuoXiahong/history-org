@@ -20,7 +20,7 @@ async function getAllEvents(): Promise<HistoricalEvent[]> {
   return data.events || [];
 }
 
-export function EventsPage() {
+function EventsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -77,6 +77,12 @@ export function EventsPage() {
       return dateString;
     }
   };
+
+  // Placeholder for future EventForm component - using void to suppress unused warnings
+  void isFormOpen;
+  void editingEvent;
+  void createMutation;
+  void updateMutation;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -209,3 +215,6 @@ export function EventsPage() {
     </div>
   );
 }
+
+export default EventsPage;
+export { EventsPage };

@@ -21,7 +21,7 @@ async function getAllPersons(): Promise<Person[]> {
   return data.persons || [];
 }
 
-export function PeoplePage() {
+function PeoplePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -230,3 +230,6 @@ export function PeoplePage() {
     </div>
   );
 }
+
+export default PeoplePage;
+export { PeoplePage };

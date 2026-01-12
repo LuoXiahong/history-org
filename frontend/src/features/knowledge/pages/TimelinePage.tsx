@@ -5,7 +5,7 @@ import { getTimeline } from '../api/knowledge.api';
 import { TimelineList } from '../components/Timeline/TimelineList';
 import type { TimelineEvent } from '../types';
 
-export function TimelinePage() {
+function TimelinePage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -128,3 +128,6 @@ export function TimelinePage() {
     </div>
   );
 }
+
+export default TimelinePage;
+export { TimelinePage };

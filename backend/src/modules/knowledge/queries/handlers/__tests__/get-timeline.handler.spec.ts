@@ -149,14 +149,21 @@ describe('GetTimelineHandler', () => {
     });
   });
 
-  it('should include document reference', async () => {
+  it('should include document reference when available', async () => {
     const query = new GetTimelineQuery();
     const result = await handler.execute(query);
 
     expect(result.length).toBeGreaterThan(0);
     result.forEach((event) => {
+      // Document is always present (either real document or fallback for manual entries)
       expect(event.document).toBeDefined();
-      expect(event.document.id).toBeDefined();
+      expect(event.document.filePath).toBeDefined();
+      expect(event.document.fileName).toBeDefined();
+      // For events with documents, filePath should not be empty
+      // For manual entries, fileName will be 'Manual Entry'
+      if (event.document.fileName !== 'Manual Entry') {
+        expect(event.document.filePath).toBeTruthy();
+      }
     });
   });
 

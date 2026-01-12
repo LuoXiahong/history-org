@@ -41,7 +41,7 @@ export class UpdatePersonHandler
     if (fullName) {
       const normalizedName = normalizePersonName(fullName);
       const duplicatePerson = await this.prisma.$queryRaw<Array<{ id: string; fullName: string }>>`
-        SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = ${normalizedName} AND id != ${personId} LIMIT 1
+        SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = LOWER(${fullName}) AND id != ${personId} LIMIT 1
       ` as Array<{ id: string; fullName: string }>;
 
       if (duplicatePerson && duplicatePerson.length > 0) {

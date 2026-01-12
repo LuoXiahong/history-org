@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      target: builder
+    command: npm run start:dev
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - backend_data:/app/data
+    environment:
+      NODE_ENV: development
+
+  frontend:
+    build:
+      target: deps
+    command: npm run dev -- --host
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "${FRONTEND_DEV_PORT:-5173}:5173"

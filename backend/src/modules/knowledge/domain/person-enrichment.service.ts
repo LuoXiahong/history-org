@@ -5,24 +5,22 @@ import { EnrichedPersonDto } from '../dto/enriched-person.dto';
 
 @Injectable()
 export class PersonEnrichmentService {
-  private readonly openai: OpenAI;
+  private readonly openai: OpenAI | undefined;
   private readonly model: string;
   private readonly temperature: number;
   private readonly maxTokens: number;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    // Only throw error in non-test environments
+    // Log warning if API key is not configured
     if (!apiKey && process.env.NODE_ENV !== 'test') {
-      throw new Error(
-        'OPENAI_API_KEY is not configured. Please set it in your .env file.',
+      console.warn(
+        'OPENAI_API_KEY is not configured. Person enrichment features will be disabled.',
       );
     }
 
     // Initialize OpenAI only if API key is available
-    if (apiKey) {
-      this.openai = new OpenAI({ apiKey });
-    }
+    this.openai = apiKey ? new OpenAI({ apiKey }) : undefined;
     this.model = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4';
     this.temperature =
       this.configService.get<number>('OPENAI_TEMPERATURE') || 0.3;
@@ -54,7 +52,17 @@ export class PersonEnrichmentService {
       });
 
       const responseContent = completion.choices[0]?.message?.content || '{}';
-      return this.parseResponse(responseContent);
+      try {
+        return this.parseResponse(responseContent, name);
+      } catch (parseError) {
+        // If parsing fails, log and return minimal data
+        console.error(
+          `OpenAI API error during person enrichment: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`,
+        );
+        return {
+          fullName: name,
+        };
+      }
     } catch (error) {
       // Log error but return partial/empty data instead of crashing
       console.error(
@@ -86,11 +94,11 @@ Return a JSON object with this exact structure:
 If information is not available, use null for optional fields. Always include fullName.`;
   }
 
-  private parseResponse(responseContent: string): EnrichedPersonDto {
+  private parseResponse(responseContent: string, fallbackName?: string): EnrichedPersonDto {
     try {
       const parsed = JSON.parse(responseContent);
       return {
-        fullName: parsed.fullName || '',
+        fullName: parsed.fullName || fallbackName || '',
         firstName: parsed.firstName || undefined,
         lastName: parsed.lastName || undefined,
         title: parsed.title || undefined,

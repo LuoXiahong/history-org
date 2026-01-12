@@ -23,7 +23,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export function SearchPage() {
+function SearchPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedQuery = useDebounce(searchQuery, 300);
@@ -148,3 +148,6 @@ export function SearchPage() {
     </div>
   );
 }
+
+export default SearchPage;
+export { SearchPage };

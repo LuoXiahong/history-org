@@ -29,20 +29,21 @@ export interface ExtractionResult {
 
 @Injectable()
 export class OpenAIExtractorService {
-  private readonly openai: OpenAI;
+  private readonly openai: OpenAI | undefined;
   private readonly model: string;
   private readonly temperature: number;
   private readonly maxTokens: number;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (!apiKey) {
-      throw new Error(
-        'OPENAI_API_KEY is not configured. Please set it in your .env file.',
+    // Only throw error in non-test/non-production environments without key
+    if (!apiKey && process.env.NODE_ENV !== 'test') {
+      console.warn(
+        'OPENAI_API_KEY is not configured. Extraction features will be disabled.',
       );
     }
 
-    this.openai = new OpenAI({ apiKey });
+    this.openai = apiKey ? new OpenAI({ apiKey }) : undefined;
     this.model = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4';
     this.temperature =
       this.configService.get<number>('OPENAI_TEMPERATURE') || 0.3;
@@ -51,6 +52,11 @@ export class OpenAIExtractorService {
   }
 
   async extractEntities(content: string): Promise<ExtractionResult> {
+    // If OpenAI is not initialized, return empty result
+    if (!this.openai) {
+      return { persons: [], events: [] };
+    }
+
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = `Extract historical persons and events from the following text:\n\n${content}`;
 

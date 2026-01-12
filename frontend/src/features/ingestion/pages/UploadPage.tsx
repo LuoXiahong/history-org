@@ -8,7 +8,7 @@ import type { DocumentResponse } from '../types';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
-export function UploadPage() {
+function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedDocument, setUploadedDocument] =
     useState<DocumentResponse | null>(null);
@@ -208,3 +208,6 @@ export function UploadPage() {
     </div>
   );
 }
+
+export default UploadPage;
+export { UploadPage };

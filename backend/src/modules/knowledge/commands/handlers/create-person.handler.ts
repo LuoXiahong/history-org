@@ -17,9 +17,9 @@ export class CreatePersonHandler
       command;
 
     // Check for duplicate by normalized name (case-insensitive)
-    const normalizedName = normalizePersonName(fullName);
+    // Use Prisma's case-insensitive search with raw SQL for SQLite
     const existingPerson = await this.prisma.$queryRaw<Array<{ id: string; fullName: string }>>`
-      SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = ${normalizedName} LIMIT 1
+      SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = LOWER(TRIM(${fullName})) LIMIT 1
     ` as Array<{ id: string; fullName: string }>;
 
     if (existingPerson && existingPerson.length > 0) {
