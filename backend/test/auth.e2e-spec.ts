@@ -168,11 +168,11 @@ describe('Auth (e2e)', () => {
       const responseBodyRaw: unknown = response.body;
       const responseBody = responseBodyRaw as Record<string, unknown>;
       expect(responseBody).toMatchObject({
-        id: expect.stringMatching(/.*/),
         email: 'newuser@example.com',
         name: 'New User',
         roles: ['USER'],
       });
+      expect(typeof responseBody.id).toBe('string');
     });
 
     it('should reject registration with existing email', async () => {
