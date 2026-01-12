@@ -9,21 +9,16 @@ describe('AuthController', () => {
   let loginMock: jest.Mock;
   let registerMock: jest.Mock;
 
-  const mockAuthResponse = {
-    accessToken: 'mock-jwt-token',
-    tokenType: 'Bearer',
-    expiresIn: 86400,
-    user: {
-      id: 'user-123',
-      email: 'test@example.com',
-      name: 'Test User',
-      roles: [UserRole.USER],
-    },
+  const mockUserResponse = {
+    id: 'user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+    roles: [UserRole.USER],
   };
 
   beforeEach(async () => {
-    loginMock = jest.fn().mockResolvedValue(mockAuthResponse);
-    registerMock = jest.fn().mockResolvedValue(mockAuthResponse);
+    loginMock = jest.fn().mockResolvedValue(mockUserResponse);
+    registerMock = jest.fn().mockResolvedValue(mockUserResponse);
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -51,7 +46,7 @@ describe('AuthController', () => {
       const result = await controller.login(dto, mockRes);
 
       expect(loginMock).toHaveBeenCalledWith(dto, mockRes);
-      expect(result).toEqual(mockAuthResponse.user);
+      expect(result).toEqual(mockUserResponse);
     });
   });
 
@@ -69,7 +64,7 @@ describe('AuthController', () => {
       const result = await controller.register(dto, mockRes);
 
       expect(registerMock).toHaveBeenCalledWith(dto, mockRes);
-      expect(result).toEqual(mockAuthResponse.user);
+      expect(result).toEqual(mockUserResponse);
     });
   });
 
