@@ -128,8 +128,5 @@ describe('GetEventHandler', () => {
 
     expect(result.id).toBe(event.id);
     expect(result.persons).toHaveLength(0);
-
-    // Cleanup
-    await prisma.event.delete({ where: { id: event.id } });
   });
 });

@@ -6,7 +6,7 @@ import { hashContent } from '../../../../shared/utils/hash.util';
 import { IndexDocumentCommand } from '../impl/index-document.command';
 import { DocumentIndexedEvent } from '../../events/impl/document-indexed.event';
 import { basename } from 'path';
-import { Document as PrismaDocument } from '@db';
+import { Document as PrismaDocument } from '../../../../generated/prisma/client';
 
 @Injectable()
 @CommandHandler(IndexDocumentCommand)

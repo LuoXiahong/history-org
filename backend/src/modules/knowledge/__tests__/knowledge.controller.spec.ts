@@ -59,6 +59,7 @@ describe('KnowledgeController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -143,7 +144,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('GET /knowledge/persons/:id', () => {
     it('should return person data', () => {
       return request(app.getHttpServer())
-        .get(`/knowledge/persons/${testPersonId}`)
+        .get(`/api/v1/knowledge/persons/${testPersonId}`)
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as PersonResponse;
@@ -164,7 +165,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('GET /knowledge/events/:id', () => {
     it('should return event data', () => {
       return request(app.getHttpServer())
-        .get(`/knowledge/events/${testEventId}`)
+        .get(`/api/v1/knowledge/events/${testEventId}`)
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as EventResponse;
@@ -185,7 +186,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('GET /knowledge/search', () => {
     it('should return search results', () => {
       return request(app.getHttpServer())
-        .get('/knowledge/search?q=Test')
+        .get('/api/v1/knowledge/search?q=Test')
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as SearchResponse;
@@ -198,7 +199,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should handle pagination', () => {
       return request(app.getHttpServer())
-        .get('/knowledge/search?q=Test&limit=10&offset=0')
+        .get('/api/v1/knowledge/search?q=Test&limit=10&offset=0')
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as SearchResponse;
@@ -211,7 +212,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('GET /knowledge/timeline', () => {
     it('should return timeline events', () => {
       return request(app.getHttpServer())
-        .get('/knowledge/timeline')
+        .get('/api/v1/knowledge/timeline')
         .expect(200)
         .expect((res: request.Response) => {
           const body = res.body as TimelineEventResponse[];
@@ -228,7 +229,7 @@ describe('KnowledgeController (e2e)', () => {
     it('should filter by date range', () => {
       return request(app.getHttpServer())
         .get(
-          '/knowledge/timeline?dateStart=2024-01-01T00:00:00Z&dateEnd=2024-12-31T23:59:59Z',
+          '/api/v1/knowledge/timeline?dateStart=2024-01-01T00:00:00Z&dateEnd=2024-12-31T23:59:59Z',
         )
         .expect(200)
         .expect((res: request.Response) => {
@@ -240,7 +241,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('POST /knowledge/persons', () => {
     it('should create a person and return 201', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/persons')
+        .post('/api/v1/knowledge/persons')
         .send({
           fullName: 'New Person',
           firstName: 'New',
@@ -263,7 +264,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should create a person with minimal data', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/persons')
+        .post('/api/v1/knowledge/persons')
         .send({
           fullName: 'Minimal Person',
         })
@@ -277,7 +278,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should reject duplicate person names with 409', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/persons')
+        .post('/api/v1/knowledge/persons')
         .send({
           fullName: 'Test Person', // Same as existing testPersonId
         })
@@ -288,7 +289,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('PUT /knowledge/persons/:id', () => {
     it('should update person and return 200', () => {
       return request(app.getHttpServer())
-        .put(`/knowledge/persons/${testPersonId}`)
+        .put(`/api/v1/knowledge/persons/${testPersonId}`)
         .send({
           fullName: 'Updated Person',
           title: 'Updated Title',
@@ -320,7 +321,7 @@ describe('KnowledgeController (e2e)', () => {
       });
 
       return request(app.getHttpServer())
-        .put(`/knowledge/persons/${testPersonId}`)
+        .put(`/api/v1/knowledge/persons/${testPersonId}`)
         .send({
           fullName: 'Another Person', // Same as newPerson
         })
@@ -342,7 +343,7 @@ describe('KnowledgeController (e2e)', () => {
       });
 
       return request(app.getHttpServer())
-        .delete(`/knowledge/persons/${personToDelete.id}`)
+        .delete(`/api/v1/knowledge/persons/${personToDelete.id}`)
         .expect(204)
         .then(async () => {
           // Verify person is deleted
@@ -382,7 +383,7 @@ describe('KnowledgeController (e2e)', () => {
       });
 
       return request(app.getHttpServer())
-        .delete(`/knowledge/persons/${personToDelete.id}`)
+        .delete(`/api/v1/knowledge/persons/${personToDelete.id}`)
         .expect(204)
         .then(async () => {
           // Verify relationships are deleted
@@ -404,7 +405,7 @@ describe('KnowledgeController (e2e)', () => {
       // Note: This test will return minimal data if OpenAI API key is not configured
       // In a real scenario, you'd mock the OpenAI service
       return request(app.getHttpServer())
-        .post('/knowledge/enrich-person')
+        .post('/api/v1/knowledge/enrich-person')
         .send({
           name: 'Napoleon Bonaparte',
         })
@@ -423,7 +424,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should require name field', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/enrich-person')
+        .post('/api/v1/knowledge/enrich-person')
         .send({})
         .expect(400);
     });
@@ -432,7 +433,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('POST /knowledge/events', () => {
     it('should create an event and return 201', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/events')
+        .post('/api/v1/knowledge/events')
         .send({
           title: 'New Event',
           description: 'New event description',
@@ -455,7 +456,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should create an event without document', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/events')
+        .post('/api/v1/knowledge/events')
         .send({
           title: 'Manual Event',
           description: 'Manually created event',
@@ -471,7 +472,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should return 400 for invalid document ID', () => {
       return request(app.getHttpServer())
-        .post('/knowledge/events')
+        .post('/api/v1/knowledge/events')
         .send({
           title: 'Test Event',
           documentId: 'non-existent-document-id',
@@ -483,7 +484,7 @@ describe('KnowledgeController (e2e)', () => {
   describe('PUT /knowledge/events/:id', () => {
     it('should update event and return 200', () => {
       return request(app.getHttpServer())
-        .put(`/knowledge/events/${testEventId}`)
+        .put(`/api/v1/knowledge/events/${testEventId}`)
         .send({
           title: 'Updated Event',
           description: 'Updated description',
@@ -510,7 +511,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should return 400 for invalid document ID', () => {
       return request(app.getHttpServer())
-        .put(`/knowledge/events/${testEventId}`)
+        .put(`/api/v1/knowledge/events/${testEventId}`)
         .send({
           documentId: 'non-existent-document-id',
         })
@@ -529,7 +530,7 @@ describe('KnowledgeController (e2e)', () => {
       });
 
       return request(app.getHttpServer())
-        .delete(`/knowledge/events/${eventToDelete.id}`)
+        .delete(`/api/v1/knowledge/events/${eventToDelete.id}`)
         .expect(204)
         .then(async () => {
           // Verify event is deleted
@@ -542,7 +543,7 @@ describe('KnowledgeController (e2e)', () => {
 
     it('should return 404 for non-existent event', () => {
       return request(app.getHttpServer())
-        .delete('/knowledge/events/non-existent-id')
+        .delete('/api/v1/knowledge/events/non-existent-id')
         .expect(404);
     });
 
@@ -563,7 +564,7 @@ describe('KnowledgeController (e2e)', () => {
       });
 
       return request(app.getHttpServer())
-        .delete(`/knowledge/events/${eventToDelete.id}`)
+        .delete(`/api/v1/knowledge/events/${eventToDelete.id}`)
         .expect(204)
         .then(async () => {
           // Verify relationships are deleted

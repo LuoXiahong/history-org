@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../shared/infrastructure/database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
+import { UserResponseDto } from './dto/auth-response.dto';
 import { JwtPayload, UserRole } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -18,13 +19,20 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly saltRounds = 12;
 
+  private readonly cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: '/',
+  };
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  async login(dto: LoginDto): Promise<AuthResponseDto> {
+  async login(dto: LoginDto, res: Response): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -51,15 +59,28 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    return this.generateAuthResponse({
+    const roles = this.parseRoles(user.roles);
+    const token = this.generateToken({
       id: user.id,
       email: user.email,
-      name: user.name,
-      roles: this.parseRoles(user.roles),
+      roles,
     });
+
+    const maxAge = this.getExpirationSeconds() * 1000;
+    res.cookie('access_token', token, {
+      ...this.cookieOptions,
+      maxAge,
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      roles,
+    };
   }
 
-  async register(dto: RegisterDto): Promise<AuthResponseDto> {
+  async register(dto: RegisterDto, res: Response): Promise<UserResponseDto> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -82,11 +103,37 @@ export class AuthService {
 
     this.logger.log(`New user registered: ${user.id}`);
 
-    return this.generateAuthResponse({
+    const roles = [UserRole.USER];
+    const token = this.generateToken({
       id: user.id,
       email: user.email,
-      name: user.name,
-      roles: [UserRole.USER],
+      roles,
+    });
+
+    const maxAge = this.getExpirationSeconds() * 1000;
+    res.cookie('access_token', token, {
+      ...this.cookieOptions,
+      maxAge,
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      roles,
+    };
+  }
+
+  logout(res: Response): void {
+    // Clear cookie with exact same options as when it was set
+    // Express requires matching options for clearCookie to work properly
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      // Explicitly set domain to undefined/null if not set originally
+      // This ensures cookie is cleared from the same domain it was set
     });
   }
 
@@ -98,31 +145,18 @@ export class AuthService {
     }
   }
 
-  private generateAuthResponse(user: {
+  private generateToken(user: {
     id: string;
     email: string;
-    name: string | null;
     roles: UserRole[];
-  }): AuthResponseDto {
+  }): string {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       roles: user.roles,
     };
 
-    const expiresIn = this.getExpirationSeconds();
-
-    return {
-      accessToken: this.jwtService.sign(payload),
-      tokenType: 'Bearer',
-      expiresIn,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name ?? undefined,
-        roles: user.roles,
-      },
-    };
+    return this.jwtService.sign(payload);
   }
 
   private getExpirationSeconds(): number {

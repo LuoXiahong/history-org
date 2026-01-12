@@ -2,12 +2,21 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 import { PrismaService } from '../../../shared/infrastructure/database/prisma.service';
 import {
   JwtPayload,
   AuthenticatedUser,
   UserRole,
 } from '../interfaces/jwt-payload.interface';
+
+const cookieExtractor = (req: Request): string | null => {
+  if (req && req.cookies) {
+    const token = req.cookies['access_token'] as unknown;
+    return typeof token === 'string' ? token : null;
+  }
+  return null;
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -20,7 +29,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new Error('JWT_SECRET environment variable is not set');
     }
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        cookieExtractor,
+        ExtractJwt.fromAuthHeaderAsBearerToken(), // Fallback for API clients
+      ]),
       ignoreExpiration: false,
       secretOrKey: secret,
       issuer: 'history-org',

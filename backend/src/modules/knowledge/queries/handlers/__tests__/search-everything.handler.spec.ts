@@ -119,7 +119,12 @@ describe('SearchEverythingHandler', () => {
     const result = await handler.execute(query);
 
     expect(result.persons.length).toBeGreaterThan(0);
-    expect(result.persons.some((p) => p.title?.includes('Emperor'))).toBe(true);
+    // SQLite contains is case-insensitive, so check for case-insensitive match
+    expect(
+      result.persons.some(
+        (p) => p.title && p.title.toLowerCase().includes('emperor'),
+      ),
+    ).toBe(true);
   });
 
   it('should search events by title', async () => {

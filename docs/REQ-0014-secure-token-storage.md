@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `TODO` |
+| **Status** | `DONE` |
 | **Priority** | Critical |
 | **Complexity** | Medium |
 | **Estimated Effort** | 4-6 hours |
@@ -157,11 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 ```typescript
 // frontend/src/lib/axios.ts
 export const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: '/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Essential for cookies
+  withCredentials: true, // Essential for httpOnly cookies
 });
 
 // Remove token interceptor - cookies are sent automatically
@@ -187,27 +187,33 @@ npm install -D @types/cookie-parser
 
 ```typescript
 // backend/src/main.ts
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  app.enableCors({
+    origin: process.env.CORS_ORIGINS?.split(',') || 'http://localhost:5173',
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+  app.setGlobalPrefix('api/v1');
   // ...
 }
 ```
 
 ## 4. Acceptance Criteria
 
-- [ ] JWT token is stored in httpOnly cookie, not localStorage
-- [ ] Cookie has Secure flag in production
-- [ ] Cookie has SameSite=strict
-- [ ] Frontend makes requests with `withCredentials: true`
-- [ ] Login response sets cookie, not token in body
-- [ ] Logout clears cookie
-- [ ] `/auth/me` validates session from cookie
-- [ ] Fallback to Authorization header for API clients
-- [ ] Tests updated for new auth flow
-- [ ] localStorage is cleared of any existing tokens
+- [x] JWT token is stored in httpOnly cookie, not localStorage
+- [x] Cookie has Secure flag in production
+- [x] Cookie has SameSite=strict
+- [x] Frontend makes requests with `withCredentials: true`
+- [x] Login response sets cookie, not token in body
+- [x] Logout clears cookie
+- [x] `/auth/me` validates session from cookie
+- [x] Fallback to Authorization header for API clients
+- [x] Tests updated for new auth flow
+- [x] localStorage is cleared of any existing tokens
 
 ## 5. Testing Strategy
 
@@ -257,7 +263,35 @@ describe('Auth (e2e)', () => {
 - Token refresh should also use cookies
 - Consider adding CSRF token for state-changing requests
 
-## 8. References
+## 8. Implementation Summary
+
+### Backend Implementation
+- ✅ Added `cookie-parser` middleware in `main.ts`
+- ✅ Configured CORS with `credentials: true` and global prefix `/api/v1`
+- ✅ Updated `AuthService.login()` to set `httpOnly` cookie with secure options
+- ✅ Added `AuthService.logout()` method to clear cookie
+- ✅ Updated `JwtStrategy` to extract token from cookie (with fallback to Authorization header)
+- ✅ Updated `AuthController` to use `@Res({ passthrough: true })` for cookie handling
+- ✅ Created comprehensive E2E tests for cookie-based authentication flow
+- ✅ Updated unit tests to verify cookie setting/clearing
+
+### Frontend Implementation
+- ✅ Removed all `localStorage` token operations from `AuthContext`
+- ✅ Updated Axios config with `withCredentials: true` and `baseURL: '/api/v1'`
+- ✅ Removed token request interceptor (cookies sent automatically)
+- ✅ Updated `AuthContext` to validate session via `/auth/me` endpoint on mount
+- ✅ Added `clearLegacyStorage()` to remove old localStorage tokens
+- ✅ Updated unit tests to reflect cookie-based flow
+- ✅ Updated Playwright E2E tests for new authentication flow
+
+### Security Features Implemented
+- ✅ `httpOnly: true` - prevents XSS token theft
+- ✅ `secure: true` in production - HTTPS-only transmission
+- ✅ `sameSite: 'strict'` - CSRF protection
+- ✅ Cookie path set to `/` for consistent behavior
+- ✅ Fallback to Authorization header for API client compatibility
+
+## 9. References
 
 - [OWASP Session Management](https://owasp.org/www-community/Session_Management_Cheat_Sheet)
 - [MDN HTTP Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
