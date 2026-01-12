@@ -16,7 +16,7 @@ import type { Person } from '../types';
 async function getAllPersons(): Promise<Person[]> {
   // For now, we'll use search with empty query to get all persons
   // In a real app, you'd have a dedicated endpoint
-  const response = await fetch('/api/knowledge/search?q=&limit=1000');
+  const response = await fetch('/api/v1/knowledge/search?q=&limit=1000');
   const data = await response.json();
   return data.persons || [];
 }
