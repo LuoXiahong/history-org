@@ -34,7 +34,7 @@ export default defineConfig({
       timeout: 120 * 1000,
     },
     {
-      command: 'cd ../backend && npx prisma generate && DATABASE_URL=file:./dev.db JWT_SECRET=test-secret PORT=3000 npm run start:dev',
+      command: 'cd ../backend && DATABASE_URL=file:./dev.db JWT_SECRET=test-secret PORT=3000 npm run start:dev',
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
