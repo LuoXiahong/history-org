@@ -294,8 +294,15 @@ describe('Auth (e2e)', () => {
 
       // Extract token from cookie (for testing purposes)
       // In real scenario, API client would use Authorization header
-      const cookies = loginResponse.headers['set-cookie'];
-      const cookieMatch = cookies[0].match(/access_token=([^;]+)/);
+      const setCookieHeaderRaw: unknown = loginResponse.headers['set-cookie'];
+      const setCookieHeader = setCookieHeaderRaw as
+        | string
+        | string[]
+        | undefined;
+      const cookieString = Array.isArray(setCookieHeader)
+        ? setCookieHeader[0]
+        : String(setCookieHeader);
+      const cookieMatch = cookieString.match(/access_token=([^;]+)/);
       const token = cookieMatch ? cookieMatch[1] : null;
 
       // Access with Authorization header
