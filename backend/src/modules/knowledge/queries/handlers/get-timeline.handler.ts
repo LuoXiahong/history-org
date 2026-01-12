@@ -1,6 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../shared/infrastructure/database/prisma.service';
 import { GetTimelineQuery } from '../impl/get-timeline.query';
 import { TimelineEventDto } from '../../dto/timeline-event.dto';
@@ -11,21 +10,17 @@ export class GetTimelineHandler implements IQueryHandler<GetTimelineQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetTimelineQuery): Promise<TimelineEventDto[]> {
-    const where: Prisma.EventWhereInput = {};
-
-    if (query.dateStart || query.dateEnd) {
-      const dateFilter: Prisma.DateTimeNullableFilter = {};
-      if (query.dateStart) {
-        dateFilter.gte = query.dateStart;
-      }
-      if (query.dateEnd) {
-        dateFilter.lte = query.dateEnd;
-      }
-      where.dateStart = dateFilter;
-    }
+    // Build date filter conditionally
+    const dateStartFilter =
+      query.dateStart || query.dateEnd
+        ? {
+            ...(query.dateStart && { gte: query.dateStart }),
+            ...(query.dateEnd && { lte: query.dateEnd }),
+          }
+        : undefined;
 
     const events = await this.prisma.event.findMany({
-      where,
+      where: dateStartFilter ? { dateStart: dateStartFilter } : {},
       include: {
         document: {
           select: {

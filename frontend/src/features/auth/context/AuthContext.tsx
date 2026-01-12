@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { User, AuthState } from '../types/auth.types';
+import type {
+  User,
+  AuthState,
+  LoginCredentials,
+  RegisterCredentials,
+} from '../types/auth.types';
 import { authApi } from '../api/auth.api';
 import { AuthContext, type AuthContextType } from './auth-context';
 
