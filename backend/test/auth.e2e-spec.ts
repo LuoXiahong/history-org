@@ -70,14 +70,15 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const setCookieHeader = response.headers['set-cookie'];
+      const setCookieHeader: unknown = response.headers['set-cookie'];
       const cookieHeader = Array.isArray(setCookieHeader)
         ? setCookieHeader[0]
         : String(setCookieHeader);
       expect(cookieHeader).toContain('access_token=');
       expect(cookieHeader).toContain('HttpOnly');
       expect(cookieHeader).toContain('SameSite=Strict');
-      expect(response.body).toMatchObject({
+      const responseBody: unknown = response.body;
+      expect(responseBody).toMatchObject({
         id: expect.any(String),
         email: 'test@example.com',
         roles: ['USER'],
@@ -149,13 +150,14 @@ describe('Auth (e2e)', () => {
         .expect(201);
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const setCookieHeader = response.headers['set-cookie'];
+      const setCookieHeader: unknown = response.headers['set-cookie'];
       const cookieHeader = Array.isArray(setCookieHeader)
         ? setCookieHeader[0]
         : String(setCookieHeader);
       expect(cookieHeader).toContain('access_token=');
       expect(cookieHeader).toContain('HttpOnly');
-      expect(response.body).toMatchObject({
+      const responseBody: unknown = response.body;
+      expect(responseBody).toMatchObject({
         id: expect.any(String),
         email: 'newuser@example.com',
         name: 'New User',
