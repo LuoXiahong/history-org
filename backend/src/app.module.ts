@@ -6,6 +6,7 @@ import { PrismaModule } from './shared/infrastructure/database/prisma.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { ExtractionModule } from './modules/extraction/extraction.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { KnowledgeModule } from './modules/knowledge/knowledge.module';
       isGlobal: true,
     }),
     PrismaModule,
+    AuthModule,
     IngestionModule,
     ExtractionModule,
     KnowledgeModule,

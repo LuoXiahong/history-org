@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth.service';
 import { PrismaService } from '../../../shared/infrastructure/database/prisma.service';
@@ -82,94 +83,138 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return auth response for valid credentials', async () => {
+    it('should set httpOnly cookie and return user data for valid credentials', async () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       prisma.user.update.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.login({
-        email: 'test@example.com',
-        password: 'ValidPassword123',
-      });
+      const mockRes = {
+        cookie: jest.fn(),
+      } as unknown as Response;
+
+      const result = await service.login(
+        {
+          email: 'test@example.com',
+          password: 'ValidPassword123',
+        },
+        mockRes,
+      );
 
       expect(result).toEqual({
-        accessToken: 'mock-jwt-token',
-        tokenType: 'Bearer',
-        expiresIn: 86400,
-        user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          name: 'Test User',
-          roles: [UserRole.USER],
-        },
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+        roles: [UserRole.USER],
       });
+
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        'access_token',
+        'mock-jwt-token',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
+        }),
+      );
+
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
         data: { lastLoginAt: expect.any(Date) as Date },
       });
     });
 
-    it('should throw UnauthorizedException for invalid email', async () => {
+    it('should reject login with invalid email', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
+      const mockRes = { cookie: jest.fn() } as unknown as Response;
 
       await expect(
-        service.login({
-          email: 'nonexistent@example.com',
-          password: 'SomePassword123',
-        }),
+        service.login(
+          {
+            email: 'nonexistent@example.com',
+            password: 'SomePassword123',
+          },
+          mockRes,
+        ),
       ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
 
-    it('should throw UnauthorizedException for invalid password', async () => {
+    it('should reject login with invalid password', async () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      const mockRes = { cookie: jest.fn() } as unknown as Response;
 
       await expect(
-        service.login({
-          email: 'test@example.com',
-          password: 'WrongPassword123',
-        }),
+        service.login(
+          {
+            email: 'test@example.com',
+            password: 'WrongPassword123',
+          },
+          mockRes,
+        ),
       ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
 
-    it('should throw UnauthorizedException for deactivated user', async () => {
+    it('should reject login for deactivated user', async () => {
       prisma.user.findUnique.mockResolvedValue({
         ...mockUser,
         isActive: false,
       });
+      const mockRes = { cookie: jest.fn() } as unknown as Response;
 
       await expect(
-        service.login({
-          email: 'test@example.com',
-          password: 'ValidPassword123',
-        }),
+        service.login(
+          {
+            email: 'test@example.com',
+            password: 'ValidPassword123',
+          },
+          mockRes,
+        ),
       ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
   });
 
   describe('register', () => {
-    it('should create user and return auth response', async () => {
+    it('should create user, set cookie and return user data', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword123');
 
-      const result = await service.register({
-        email: 'newuser@example.com',
-        password: 'SecurePass123',
-        name: 'New User',
-      });
+      const mockRes = {
+        cookie: jest.fn(),
+      } as unknown as Response;
+
+      const result = await service.register(
+        {
+          email: 'newuser@example.com',
+          password: 'SecurePass123',
+          name: 'New User',
+        },
+        mockRes,
+      );
 
       expect(result).toEqual({
-        accessToken: 'mock-jwt-token',
-        tokenType: 'Bearer',
-        expiresIn: 86400,
-        user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          name: 'Test User',
-          roles: [UserRole.USER],
-        },
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+        roles: [UserRole.USER],
       });
+
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        'access_token',
+        'mock-jwt-token',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
+        }),
+      );
+
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
           email: 'newuser@example.com',
@@ -181,26 +226,36 @@ describe('AuthService', () => {
       });
     });
 
-    it('should throw ConflictException for existing email', async () => {
+    it('should reject registration with existing email', async () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
+      const mockRes = { cookie: jest.fn() } as unknown as Response;
 
       await expect(
-        service.register({
-          email: 'test@example.com',
-          password: 'SecurePass123',
-        }),
+        service.register(
+          {
+            email: 'test@example.com',
+            password: 'SecurePass123',
+          },
+          mockRes,
+        ),
       ).rejects.toThrow(ConflictException);
+
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
 
-    it('should hash password before saving', async () => {
+    it('should hash password before saving user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
+      const mockRes = { cookie: jest.fn() } as unknown as Response;
 
-      await service.register({
-        email: 'newuser@example.com',
-        password: 'PlainPassword123',
-      });
+      await service.register(
+        {
+          email: 'newuser@example.com',
+          password: 'PlainPassword123',
+        },
+        mockRes,
+      );
 
       expect(bcrypt.hash).toHaveBeenCalledWith('PlainPassword123', 12);
       expect(prisma.user.create).toHaveBeenCalledWith(
@@ -208,6 +263,25 @@ describe('AuthService', () => {
           data: expect.objectContaining({
             password: 'hashed-password',
           }) as Record<string, unknown>,
+        }),
+      );
+    });
+  });
+
+  describe('logout', () => {
+    it('should clear access_token cookie', async () => {
+      const mockRes = {
+        clearCookie: jest.fn(),
+      } as unknown as Response;
+
+      await service.logout(mockRes);
+
+      expect(mockRes.clearCookie).toHaveBeenCalledWith(
+        'access_token',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
         }),
       );
     });
