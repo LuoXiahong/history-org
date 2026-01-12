@@ -150,7 +150,11 @@ describe('Auth (e2e)', () => {
         .expect(201);
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const setCookieHeader: unknown = response.headers['set-cookie'];
+      const setCookieHeaderRaw: unknown = response.headers['set-cookie'];
+      const setCookieHeader = setCookieHeaderRaw as
+        | string
+        | string[]
+        | undefined;
       const cookieHeader = Array.isArray(setCookieHeader)
         ? setCookieHeader[0]
         : String(setCookieHeader);
@@ -218,7 +222,12 @@ describe('Auth (e2e)', () => {
         .expect(204);
 
       // Cookie should be cleared (maxAge=0 or Expires in past)
-      const clearCookieHeader = logoutResponse.headers['set-cookie'];
+      const clearCookieHeaderRaw: unknown =
+        logoutResponse.headers['set-cookie'];
+      const clearCookieHeader = clearCookieHeaderRaw as
+        | string
+        | string[]
+        | undefined;
       expect(clearCookieHeader).toBeDefined();
       const clearCookieString = Array.isArray(clearCookieHeader)
         ? clearCookieHeader[0]
