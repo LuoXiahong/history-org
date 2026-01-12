@@ -1,7 +1,8 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { ReactNode } from 'react';
-import { AuthProvider, useAuth } from '../context/AuthContext';
+import { AuthProvider } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { authApi } from '../api/auth.api';
 import { UserRole } from '../types/auth.types';
 

@@ -14,13 +14,14 @@ export class GetTimelineHandler implements IQueryHandler<GetTimelineQuery> {
     const where: Prisma.EventWhereInput = {};
 
     if (query.dateStart || query.dateEnd) {
-      where.dateStart = {};
+      const dateFilter: Prisma.DateTimeNullableFilter = {};
       if (query.dateStart) {
-        where.dateStart.gte = query.dateStart;
+        dateFilter.gte = query.dateStart;
       }
       if (query.dateEnd) {
-        where.dateStart.lte = query.dateEnd;
+        dateFilter.lte = query.dateEnd;
       }
+      where.dateStart = dateFilter;
     }
 
     const events = await this.prisma.event.findMany({

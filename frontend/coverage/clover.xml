@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1768217410644" clover="3.2.0">
+  <project timestamp="1768217410644" name="All files">
+    <metrics statements="185" coveredstatements="148" conditionals="163" coveredconditionals="127" methods="65" coveredmethods="56" elements="413" coveredelements="331" complexity="0" loc="185" ncloc="185" packages="9" files="18" classes="18"/>
+    <package name="components.error">
+      <metrics statements="10" coveredstatements="9" conditionals="5" coveredconditionals="4" methods="7" coveredmethods="6"/>
+      <file name="ErrorBoundary.tsx" path="/home/tomon/projects/history-org/frontend/src/components/error/ErrorBoundary.tsx">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+        <line num="18" count="12" type="stmt"/>
+        <line num="20" count="6" type="stmt"/>
+        <line num="23" count="6" type="stmt"/>
+        <line num="26" count="12" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="31" count="12" type="stmt"/>
+        <line num="34" count="12" type="stmt"/>
+      </file>
+      <file name="ErrorFallback.tsx" path="/home/tomon/projects/history-org/frontend/src/components/error/ErrorFallback.tsx">
+        <metrics statements="2" coveredstatements="1" conditionals="5" coveredconditionals="4" methods="2" coveredmethods="1"/>
+        <line num="12" count="12" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+      </file>
+      <file name="NotFound.tsx" path="/home/tomon/projects/history-org/frontend/src/components/error/NotFound.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="4" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.feedback">
+      <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="2" methods="9" coveredmethods="9"/>
+      <file name="ToastProvider.tsx" path="/home/tomon/projects/history-org/frontend/src/components/feedback/ToastProvider.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="4" count="2" type="stmt"/>
+      </file>
+      <file name="useToast.ts" path="/home/tomon/projects/history-org/frontend/src/components/feedback/useToast.ts">
+        <metrics statements="15" coveredstatements="15" conditionals="2" coveredconditionals="2" methods="8" coveredmethods="8"/>
+        <line num="13" count="10" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="21" count="10" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="29" count="10" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="37" count="10" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="45" count="10" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="49" count="10" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="53" count="10" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="64" count="10" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.loading">
+      <metrics statements="12" coveredstatements="12" conditionals="15" coveredconditionals="15" methods="7" coveredmethods="7"/>
+      <file name="PageLoader.tsx" path="/home/tomon/projects/history-org/frontend/src/components/loading/PageLoader.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="1" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="6" count="3" type="stmt"/>
+      </file>
+      <file name="Skeleton.tsx" path="/home/tomon/projects/history-org/frontend/src/components/loading/Skeleton.tsx">
+        <metrics statements="10" coveredstatements="10" conditionals="12" coveredconditionals="12" methods="5" coveredmethods="5"/>
+        <line num="18" count="34" type="stmt"/>
+        <line num="20" count="34" type="stmt"/>
+        <line num="26" count="34" type="stmt"/>
+        <line num="31" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="35" count="9" type="stmt"/>
+        <line num="48" count="31" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="69" count="2" type="stmt"/>
+        <line num="72" count="8" type="stmt"/>
+      </file>
+      <file name="SuspenseWrapper.tsx" path="/home/tomon/projects/history-org/frontend/src/components/loading/SuspenseWrapper.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="16" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.auth.context">
+      <metrics statements="64" coveredstatements="52" conditionals="20" coveredconditionals="17" methods="20" coveredmethods="16"/>
+      <file name="AuthContext.tsx" path="/home/tomon/projects/history-org/frontend/src/features/auth/context/AuthContext.tsx">
+        <metrics statements="59" coveredstatements="47" conditionals="18" coveredconditionals="15" methods="19" coveredmethods="15"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="10" count="6" type="stmt"/>
+        <line num="11" count="6" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="18" count="6" type="stmt"/>
+        <line num="19" count="6" type="stmt"/>
+        <line num="20" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="27" count="4" type="stmt"/>
+        <line num="28" count="4" type="stmt"/>
+        <line num="29" count="4" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="45" count="12" type="stmt"/>
+        <line num="46" count="6" type="stmt"/>
+        <line num="47" count="6" type="stmt"/>
+        <line num="48" count="6" type="stmt"/>
+        <line num="56" count="12" type="stmt"/>
+        <line num="57" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="58" count="3" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
+        <line num="70" count="12" type="stmt"/>
+        <line num="72" count="2" type="stmt"/>
+        <line num="73" count="2" type="stmt"/>
+        <line num="74" count="2" type="stmt"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="84" count="12" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="98" count="12" type="stmt"/>
+        <line num="99" count="1" type="stmt"/>
+        <line num="102" count="12" type="stmt"/>
+        <line num="103" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="115" count="12" type="stmt"/>
+        <line num="117" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="118" count="2" type="stmt"/>
+        <line num="119" count="2" type="stmt"/>
+        <line num="120" count="1" type="stmt"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="123" count="1" type="stmt"/>
+        <line num="124" count="1" type="stmt"/>
+        <line num="133" count="12" type="cond" truecount="4" falsecount="0"/>
+        <line num="134" count="2" type="stmt"/>
+        <line num="138" count="12" type="stmt"/>
+        <line num="146" count="12" type="stmt"/>
+      </file>
+      <file name="auth-context.ts" path="/home/tomon/projects/history-org/frontend/src/features/auth/context/auth-context.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="15" count="1" type="stmt"/>
+      </file>
+      <file name="useAuth.ts" path="/home/tomon/projects/history-org/frontend/src/features/auth/context/useAuth.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="5" count="14" type="stmt"/>
+        <line num="6" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="9" count="12" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.auth.pages">
+      <metrics statements="20" coveredstatements="20" conditionals="12" coveredconditionals="11" methods="5" coveredmethods="5"/>
+      <file name="LoginPage.tsx" path="/home/tomon/projects/history-org/frontend/src/features/auth/pages/LoginPage.tsx">
+        <metrics statements="20" coveredstatements="20" conditionals="12" coveredconditionals="11" methods="5" coveredmethods="5"/>
+        <line num="7" count="59" type="stmt"/>
+        <line num="8" count="59" type="stmt"/>
+        <line num="9" count="59" type="stmt"/>
+        <line num="11" count="59" type="stmt"/>
+        <line num="12" count="59" type="stmt"/>
+        <line num="13" count="59" type="stmt"/>
+        <line num="14" count="59" type="stmt"/>
+        <line num="16" count="59" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="59" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="35" count="59" type="stmt"/>
+        <line num="68" count="32" type="stmt"/>
+        <line num="88" count="16" type="stmt"/>
+        <line num="96" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.auth.types">
+      <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="auth.types.ts" path="/home/tomon/projects/history-org/frontend/src/features/auth/types/auth.types.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.ingestion.components">
+      <metrics statements="5" coveredstatements="5" conditionals="28" coveredconditionals="20" methods="2" coveredmethods="2"/>
+      <file name="FileDropzone.tsx" path="/home/tomon/projects/history-org/frontend/src/features/ingestion/components/FileDropzone.tsx">
+        <metrics statements="5" coveredstatements="5" conditionals="28" coveredconditionals="20" methods="2" coveredmethods="2"/>
+        <line num="19" count="11" type="stmt"/>
+        <line num="21" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="28" count="11" type="stmt"/>
+        <line num="38" count="11" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.knowledge.components">
+      <metrics statements="28" coveredstatements="26" conditionals="59" coveredconditionals="56" methods="10" coveredmethods="10"/>
+      <file name="EventCard.tsx" path="/home/tomon/projects/history-org/frontend/src/features/knowledge/components/EventCard.tsx">
+        <metrics statements="13" coveredstatements="12" conditionals="23" coveredconditionals="22" methods="4" coveredmethods="4"/>
+        <line num="10" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="12" count="9" type="stmt"/>
+        <line num="13" count="10" type="stmt"/>
+        <line num="14" count="10" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="24" count="9" type="stmt"/>
+        <line num="26" count="9" type="cond" truecount="4" falsecount="0"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="31" count="8" type="stmt"/>
+        <line num="35" count="10" type="stmt"/>
+        <line num="37" count="10" type="stmt"/>
+        <line num="88" count="19" type="stmt"/>
+      </file>
+      <file name="PersonCard.tsx" path="/home/tomon/projects/history-org/frontend/src/features/knowledge/components/PersonCard.tsx">
+        <metrics statements="8" coveredstatements="7" conditionals="25" coveredconditionals="23" methods="2" coveredmethods="2"/>
+        <line num="10" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="14" type="stmt"/>
+        <line num="12" count="14" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="23" count="8" type="stmt"/>
+        <line num="24" count="8" type="stmt"/>
+        <line num="26" count="8" type="cond" truecount="4" falsecount="0"/>
+        <line num="34" count="8" type="stmt"/>
+      </file>
+      <file name="SearchInput.tsx" path="/home/tomon/projects/history-org/frontend/src/features/knowledge/components/SearchInput.tsx">
+        <metrics statements="7" coveredstatements="7" conditionals="11" coveredconditionals="11" methods="4" coveredmethods="4"/>
+        <line num="19" count="9" type="stmt"/>
+        <line num="21" count="9" type="stmt"/>
+        <line num="22" count="9" type="cond" truecount="4" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="27" count="9" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="lib">
+      <metrics statements="26" coveredstatements="4" conditionals="20" coveredconditionals="0" methods="4" coveredmethods="0"/>
+      <file name="axios.ts" path="/home/tomon/projects/history-org/frontend/src/lib/axios.ts">
+        <metrics statements="26" coveredstatements="4" conditionals="20" coveredconditionals="0" methods="4" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="51" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
