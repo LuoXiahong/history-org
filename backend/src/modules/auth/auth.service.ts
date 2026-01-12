@@ -125,7 +125,16 @@ export class AuthService {
   }
 
   logout(res: Response): void {
-    res.clearCookie('access_token', this.cookieOptions);
+    // Clear cookie with exact same options as when it was set
+    // Express requires matching options for clearCookie to work properly
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      // Explicitly set domain to undefined/null if not set originally
+      // This ensures cookie is cleared from the same domain it was set
+    });
   }
 
   validateToken(token: string): JwtPayload | null {

@@ -18,6 +18,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Public()
   @Get('health')
   @ApiTags('health')
   @ApiOperation({ summary: 'Health check endpoint' })
