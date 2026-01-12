@@ -123,7 +123,7 @@ test.describe('Auth Flow with Cookies', () => {
     await page.getByLabel(/email/i).fill(testEmail);
     await page.getByLabel(/password/i).fill('SecurePass123');
     await page.getByLabel(/name/i).fill('Test User');
-    await page.getByRole('button', { name: /register|sign up/i }).click();
+    await page.getByRole('button', { name: /create account/i }).click();
 
     // Wait for redirect after registration
     await page.waitForURL('/', { timeout: 5000 });
