@@ -21,6 +21,15 @@ Last updated: 2026-01-12
 - Toast notifications (sonner)
 - Loading/skeleton components
 
+### REQ-0014: Secure Token Storage ✅ DONE
+- JWT tokens moved from localStorage to httpOnly cookies
+- Backend cookie configuration with Secure, SameSite, HttpOnly flags
+- Frontend updated to use `withCredentials: true`
+- Cookie-parser middleware added
+- JWT strategy updated to extract from cookies (with Authorization header fallback)
+- Comprehensive E2E and unit tests implemented
+- Legacy localStorage tokens cleared
+
 ---
 
 ## Partially Completed Requirements
@@ -160,9 +169,9 @@ Last updated: 2026-01-12
 - [x] @Public(), @Roles(), @CurrentUser() decorators
 - [x] Password hashing with bcrypt
 - [x] Frontend AuthContext
+- [x] Secure token storage with httpOnly cookies (REQ-0014)
 
 **Remaining:**
-- [ ] **CRITICAL:** Move JWT from localStorage to httpOnly cookies (see REQ-0014)
 - [ ] Token refresh mechanism
 - [ ] Full test coverage
 
@@ -205,14 +214,6 @@ Last updated: 2026-01-12
 
 ---
 
-### REQ-0014: Secure Token Storage (TODO) ⚠️ SECURITY
-**Required:**
-- [ ] Move JWT to httpOnly cookies
-- [ ] Update backend to set cookies
-- [ ] Update frontend to use credentials
-- [ ] Add cookie-parser middleware
-- [ ] CSRF considerations
-
 ---
 
 ### REQ-0015: PostgreSQL Migration (TODO)
@@ -246,12 +247,21 @@ Last updated: 2026-01-12
 
 ---
 
+### REQ-0018: Auth Module Architecture Decision (TODO)
+**Required:**
+- [ ] Verify Auth module uses Service Pattern (not CQRS)
+- [ ] Update REQ-0010 documentation to reflect Service Pattern
+- [ ] Document architectural decision with rationale
+- [ ] Ensure no CQRS references in auth module
+- [ ] Add verification tests
+
+---
+
 ## Priority Order for Completion
 
 ### Critical (Security/Production)
-1. **REQ-0014** - Secure Token Storage (XSS vulnerability)
-2. **REQ-0015** - PostgreSQL Migration (production readiness)
-3. **REQ-0009** - Backend Core Configuration (security hardening)
+1. **REQ-0015** - PostgreSQL Migration (production readiness)
+2. **REQ-0009** - Backend Core Configuration (security hardening)
 
 ### High (Quality/Reliability)
 4. **REQ-0012** - Resilience & Error Handling
@@ -264,7 +274,8 @@ Last updated: 2026-01-12
 9. **REQ-0008** - Complete Docker setup
 
 ### Low (Polish)
-10. Remaining items from applied requirements
+10. **REQ-0018** - Auth Architecture Decision (documentation)
+11. Remaining items from applied requirements
 
 ---
 
@@ -272,8 +283,8 @@ Last updated: 2026-01-12
 
 | Category | Count |
 |----------|-------|
-| Total Requirements | 17 |
-| Completed | 1 |
+| Total Requirements | 18 |
+| Completed | 2 |
 | Partially Completed | 9 |
 | Not Started | 7 |
-| **Completion %** | ~30% |
+| **Completion %** | ~33% |
