@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/shared/infrastructure/database/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -85,9 +85,9 @@ describe('Auth (e2e)', () => {
       const responseBody = responseBodyRaw as Record<string, unknown>;
       expect(responseBody).toMatchObject({
         email: 'test@example.com',
-        email: 'test@example.com',
         roles: ['USER'],
       });
+      expect(typeof responseBody.id).toBe('string');
     });
 
     it('should authenticate user with cookie in subsequent requests', async () => {

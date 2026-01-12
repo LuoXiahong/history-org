@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { Response } from 'express';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { UserRole } from '../interfaces/jwt-payload.interface';
@@ -41,28 +42,34 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should return auth response for valid login', async () => {
+    it('should return user response for valid login', async () => {
       const dto = { email: 'test@example.com', password: 'ValidPass123' };
+      const mockRes = {
+        cookie: jest.fn(),
+      } as unknown as Response;
 
-      const result = await controller.login(dto);
+      const result = await controller.login(dto, mockRes);
 
-      expect(loginMock).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockAuthResponse);
+      expect(loginMock).toHaveBeenCalledWith(dto, mockRes);
+      expect(result).toEqual(mockAuthResponse.user);
     });
   });
 
   describe('register', () => {
-    it('should return auth response for valid registration', async () => {
+    it('should return user response for valid registration', async () => {
       const dto = {
         email: 'newuser@example.com',
         password: 'SecurePass123',
         name: 'New User',
       };
+      const mockRes = {
+        cookie: jest.fn(),
+      } as unknown as Response;
 
-      const result = await controller.register(dto);
+      const result = await controller.register(dto, mockRes);
 
-      expect(registerMock).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockAuthResponse);
+      expect(registerMock).toHaveBeenCalledWith(dto, mockRes);
+      expect(result).toEqual(mockAuthResponse.user);
     });
   });
 

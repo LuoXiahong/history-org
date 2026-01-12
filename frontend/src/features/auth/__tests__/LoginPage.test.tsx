@@ -38,7 +38,6 @@ describe('LoginPage', () => {
       logout: vi.fn(),
       refreshUser: vi.fn(),
       user: null,
-      token: null,
       isAuthenticated: false,
       isLoading: false,
     });
@@ -88,7 +87,6 @@ describe('LoginPage', () => {
       logout: vi.fn(),
       refreshUser: vi.fn(),
       user: null,
-      token: null,
       isAuthenticated: false,
       isLoading: true,
     });
