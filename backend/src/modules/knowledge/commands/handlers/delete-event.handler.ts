@@ -5,9 +5,7 @@ import { DeleteEventCommand } from '../impl/delete-event.command';
 
 @Injectable()
 @CommandHandler(DeleteEventCommand)
-export class DeleteEventHandler
-  implements ICommandHandler<DeleteEventCommand>
-{
+export class DeleteEventHandler implements ICommandHandler<DeleteEventCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: DeleteEventCommand): Promise<void> {

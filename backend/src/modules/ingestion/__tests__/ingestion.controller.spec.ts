@@ -7,8 +7,9 @@ import { IndexDocumentCommand } from '../commands/impl/index-document.command';
 
 describe('IngestionController', () => {
   let controller: IngestionController;
-  let commandBus: CommandBus;
-  let fileSystemService: FileSystemService;
+  let executeMock: jest.Mock;
+  let writeFileMock: jest.Mock;
+  let getBasePathMock: jest.Mock;
 
   const mockDocumentResponse = {
     id: 'test-uuid',
@@ -22,28 +23,30 @@ describe('IngestionController', () => {
   };
 
   beforeEach(async () => {
+    executeMock = jest.fn().mockResolvedValue(mockDocumentResponse);
+    writeFileMock = jest.fn().mockResolvedValue(undefined);
+    getBasePathMock = jest.fn().mockReturnValue('./content');
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [IngestionController],
       providers: [
         {
           provide: CommandBus,
           useValue: {
-            execute: jest.fn().mockResolvedValue(mockDocumentResponse),
+            execute: executeMock,
           },
         },
         {
           provide: FileSystemService,
           useValue: {
-            writeFile: jest.fn().mockResolvedValue(undefined),
-            getBasePath: jest.fn().mockReturnValue('./content'),
+            writeFile: writeFileMock,
+            getBasePath: getBasePathMock,
           },
         },
       ],
     }).compile();
 
     controller = module.get<IngestionController>(IngestionController);
-    commandBus = module.get<CommandBus>(CommandBus);
-    fileSystemService = module.get<FileSystemService>(FileSystemService);
   });
 
   describe('indexDocument', () => {
@@ -52,7 +55,7 @@ describe('IngestionController', () => {
 
       const result = await controller.indexDocument(dto);
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
+      expect(executeMock).toHaveBeenCalledWith(
         new IndexDocumentCommand('documents/history.md'),
       );
       expect(result).toEqual(mockDocumentResponse);
@@ -69,11 +72,11 @@ describe('IngestionController', () => {
 
       const result = await controller.uploadDocument(mockFile);
 
-      expect(fileSystemService.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('test-document.md'),
+      expect(writeFileMock).toHaveBeenCalledWith(
+        expect.stringContaining('test-document.md') as string,
         mockFile.buffer,
       );
-      expect(commandBus.execute).toHaveBeenCalled();
+      expect(executeMock).toHaveBeenCalled();
       expect(result).toEqual(mockDocumentResponse);
     });
 
@@ -98,10 +101,10 @@ describe('IngestionController', () => {
 
       await controller.uploadDocument(mockFile);
 
-      expect(fileSystemService.writeFile).toHaveBeenCalledWith(
+      expect(writeFileMock).toHaveBeenCalledWith(
         expect.stringMatching(
           /uploads\/\d{4}-\d{2}-\d{2}-file_with_spaces___special_chars\.md/,
-        ),
+        ) as string,
         mockFile.buffer,
       );
     });
@@ -115,8 +118,10 @@ describe('IngestionController', () => {
 
       await controller.uploadDocument(mockFile);
 
-      expect(fileSystemService.writeFile).toHaveBeenCalledWith(
-        expect.stringMatching(/uploads\/\d{4}-\d{2}-\d{2}-napoleon\.md/),
+      expect(writeFileMock).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /uploads\/\d{4}-\d{2}-\d{2}-napoleon\.md/,
+        ) as string,
         mockFile.buffer,
       );
     });
@@ -130,12 +135,12 @@ describe('IngestionController', () => {
 
       await controller.uploadDocument(mockFile);
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
+      expect(executeMock).toHaveBeenCalledWith(
         expect.any(IndexDocumentCommand),
       );
 
-      const executedCommand = (commandBus.execute as jest.Mock).mock
-        .calls[0][0];
+      const execCalls = executeMock.mock.calls as Array<[IndexDocumentCommand]>;
+      const executedCommand = execCalls[0][0];
       expect(executedCommand.filePath).toMatch(/uploads\/.*history\.md/);
     });
   });

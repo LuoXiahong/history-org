@@ -1,7 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
 import { PersonEnrichmentService } from '../person-enrichment.service';
+
+interface OpenAICallArgs {
+  model: string;
+  temperature: number;
+  max_tokens: number;
+  response_format: { type: string };
+  messages: Array<{ role: string; content: string }>;
+}
 
 // Mock OpenAI before importing the service
 const mockChatCompletionsCreate = jest.fn();
@@ -70,11 +77,13 @@ describe('PersonEnrichmentService', () => {
       ],
     }).compile();
 
-    const service = testModule.get<PersonEnrichmentService>(PersonEnrichmentService);
-    expect(service).toBeDefined();
-    
+    const testService = testModule.get<PersonEnrichmentService>(
+      PersonEnrichmentService,
+    );
+    expect(testService).toBeDefined();
+
     // Service should work and return minimal data
-    const result = await service.enrichPerson('Test Person');
+    const result = await testService.enrichPerson('Test Person');
     expect(result.fullName).toBe('Test Person');
   });
 
@@ -241,10 +250,15 @@ describe('PersonEnrichmentService', () => {
 
       await service.enrichPerson('Test Person');
 
-      const callArgs = mockChatCompletionsCreate.mock.calls[0][0];
+      const calls = mockChatCompletionsCreate.mock.calls as Array<
+        [OpenAICallArgs]
+      >;
+      const callArgs = calls[0][0];
       expect(callArgs.messages).toHaveLength(2);
       expect(callArgs.messages[0].role).toBe('system');
-      expect(callArgs.messages[0].content).toContain('historical data enrichment');
+      expect(callArgs.messages[0].content).toContain(
+        'historical data enrichment',
+      );
       expect(callArgs.messages[1].role).toBe('user');
       expect(callArgs.messages[1].content).toContain('Test Person');
     });

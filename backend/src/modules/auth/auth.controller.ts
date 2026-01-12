@@ -86,9 +86,7 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Authentication required',
   })
-  async getCurrentUser(
-    @CurrentUser() user: AuthenticatedUser,
-  ): Promise<UserResponseDto> {
+  getCurrentUser(@CurrentUser() user: AuthenticatedUser): UserResponseDto {
     return {
       id: user.id,
       email: user.email,

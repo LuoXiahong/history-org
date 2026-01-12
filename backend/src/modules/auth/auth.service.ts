@@ -90,7 +90,7 @@ export class AuthService {
     });
   }
 
-  async validateToken(token: string): Promise<JwtPayload | null> {
+  validateToken(token: string): JwtPayload | null {
     try {
       return this.jwtService.verify<JwtPayload>(token);
     } catch {
@@ -147,7 +147,7 @@ export class AuthService {
 
   private parseRoles(rolesJson: string): UserRole[] {
     try {
-      const parsed = JSON.parse(rolesJson);
+      const parsed: unknown = JSON.parse(rolesJson);
       if (Array.isArray(parsed)) {
         return parsed.filter((r) =>
           Object.values(UserRole).includes(r as UserRole),

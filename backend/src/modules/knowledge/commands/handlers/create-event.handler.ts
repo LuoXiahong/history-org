@@ -1,17 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/database/prisma.service';
 import { CreateEventCommand } from '../impl/create-event.command';
 import { EventResponseDto } from '../../dto/event-response.dto';
 
 @Injectable()
 @CommandHandler(CreateEventCommand)
-export class CreateEventHandler
-  implements ICommandHandler<CreateEventCommand>
-{
+export class CreateEventHandler implements ICommandHandler<CreateEventCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: CreateEventCommand): Promise<EventResponseDto> {

@@ -190,9 +190,7 @@ export class KnowledgeController {
     status: 409,
     description: 'Person with this name already exists',
   })
-  async createPerson(
-    @Body() dto: CreatePersonDto,
-  ): Promise<PersonResponseDto> {
+  async createPerson(@Body() dto: CreatePersonDto): Promise<PersonResponseDto> {
     const command = new CreatePersonCommand(
       dto.fullName,
       dto.firstName,

@@ -9,7 +9,6 @@ describe('UpdatePersonHandler', () => {
   let handler: UpdatePersonHandler;
   let prisma: PrismaService;
   let testPersonId: string;
-  let testPersonId2: string;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,12 +37,11 @@ describe('UpdatePersonHandler', () => {
     });
     testPersonId = person1.id;
 
-    const person2 = await prisma.person.create({
+    await prisma.person.create({
       data: {
         fullName: 'Another Person',
       },
     });
-    testPersonId2 = person2.id;
   });
 
   afterEach(async () => {

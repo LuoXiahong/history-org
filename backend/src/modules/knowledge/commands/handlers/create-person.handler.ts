@@ -3,24 +3,30 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/database/prisma.service';
 import { CreatePersonCommand } from '../impl/create-person.command';
 import { PersonResponseDto } from '../../dto/person-response.dto';
-import { normalizePersonName } from '../../utils/name-normalizer.util';
 
 @Injectable()
 @CommandHandler(CreatePersonCommand)
-export class CreatePersonHandler
-  implements ICommandHandler<CreatePersonCommand>
-{
+export class CreatePersonHandler implements ICommandHandler<CreatePersonCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: CreatePersonCommand): Promise<PersonResponseDto> {
-    const { fullName, firstName, lastName, title, birthDate, deathDate, description } =
-      command;
+    const {
+      fullName,
+      firstName,
+      lastName,
+      title,
+      birthDate,
+      deathDate,
+      description,
+    } = command;
 
     // Check for duplicate by normalized name (case-insensitive)
     // Use Prisma's case-insensitive search with raw SQL for SQLite
-    const existingPerson = await this.prisma.$queryRaw<Array<{ id: string; fullName: string }>>`
+    const existingPerson = (await this.prisma.$queryRaw<
+      Array<{ id: string; fullName: string }>
+    >`
       SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = LOWER(TRIM(${fullName})) LIMIT 1
-    ` as Array<{ id: string; fullName: string }>;
+    `) as Array<{ id: string; fullName: string }>;
 
     if (existingPerson && existingPerson.length > 0) {
       throw new ConflictException(

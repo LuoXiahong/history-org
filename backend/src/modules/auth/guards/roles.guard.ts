@@ -12,6 +12,10 @@ import {
   AuthenticatedUser,
 } from '../interfaces/jwt-payload.interface';
 
+interface RequestWithUser {
+  user?: AuthenticatedUser;
+}
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
@@ -37,8 +41,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user: AuthenticatedUser = request.user;
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const user = request.user;
 
     // If no user (shouldn't happen if JwtAuthGuard runs first)
     if (!user) {

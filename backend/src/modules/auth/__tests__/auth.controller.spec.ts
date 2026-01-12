@@ -5,7 +5,8 @@ import { UserRole } from '../interfaces/jwt-payload.interface';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
+  let loginMock: jest.Mock;
+  let registerMock: jest.Mock;
 
   const mockAuthResponse = {
     accessToken: 'mock-jwt-token',
@@ -20,21 +21,23 @@ describe('AuthController', () => {
   };
 
   beforeEach(async () => {
+    loginMock = jest.fn().mockResolvedValue(mockAuthResponse);
+    registerMock = jest.fn().mockResolvedValue(mockAuthResponse);
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         {
           provide: AuthService,
           useValue: {
-            login: jest.fn().mockResolvedValue(mockAuthResponse),
-            register: jest.fn().mockResolvedValue(mockAuthResponse),
+            login: loginMock,
+            register: registerMock,
           },
         },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
   });
 
   describe('login', () => {
@@ -43,7 +46,7 @@ describe('AuthController', () => {
 
       const result = await controller.login(dto);
 
-      expect(authService.login).toHaveBeenCalledWith(dto);
+      expect(loginMock).toHaveBeenCalledWith(dto);
       expect(result).toEqual(mockAuthResponse);
     });
   });
@@ -58,20 +61,20 @@ describe('AuthController', () => {
 
       const result = await controller.register(dto);
 
-      expect(authService.register).toHaveBeenCalledWith(dto);
+      expect(registerMock).toHaveBeenCalledWith(dto);
       expect(result).toEqual(mockAuthResponse);
     });
   });
 
   describe('getCurrentUser', () => {
-    it('should return current user info', async () => {
+    it('should return current user info', () => {
       const user = {
         id: 'user-123',
         email: 'test@example.com',
         roles: [UserRole.USER],
       };
 
-      const result = await controller.getCurrentUser(user);
+      const result = controller.getCurrentUser(user);
 
       expect(result).toEqual({
         id: 'user-123',

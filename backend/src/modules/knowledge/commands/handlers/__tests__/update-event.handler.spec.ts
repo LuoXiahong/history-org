@@ -101,10 +101,7 @@ describe('UpdateEventHandler', () => {
   });
 
   it('should update partial fields', async () => {
-    const command = new UpdateEventCommand(
-      testEventId,
-      'Updated Title Only',
-    );
+    const command = new UpdateEventCommand(testEventId, 'Updated Title Only');
 
     const result = await handler.execute(command);
 

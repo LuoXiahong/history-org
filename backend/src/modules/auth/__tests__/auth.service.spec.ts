@@ -5,7 +5,7 @@ import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth.service';
 import { PrismaService } from '../../../shared/infrastructure/database/prisma.service';
-import { UserRole } from '../interfaces/jwt-payload.interface';
+import { UserRole, JwtPayload } from '../interfaces/jwt-payload.interface';
 
 jest.mock('bcrypt');
 jest.mock('../../../shared/infrastructure/database/prisma.service');
@@ -105,7 +105,7 @@ describe('AuthService', () => {
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
-        data: { lastLoginAt: expect.any(Date) },
+        data: { lastLoginAt: expect.any(Date) as Date },
       });
     });
 
@@ -133,7 +133,10 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for deactivated user', async () => {
-      prisma.user.findUnique.mockResolvedValue({ ...mockUser, isActive: false });
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isActive: false,
+      });
 
       await expect(
         service.login({
@@ -204,32 +207,32 @@ describe('AuthService', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             password: 'hashed-password',
-          }),
+          }) as Record<string, unknown>,
         }),
       );
     });
   });
 
   describe('validateToken', () => {
-    it('should return payload for valid token', async () => {
-      const payload = {
+    it('should return payload for valid token', () => {
+      const payload: JwtPayload = {
         sub: 'user-123',
         email: 'test@example.com',
         roles: [UserRole.USER],
       };
       jest.spyOn(jwtService, 'verify').mockReturnValue(payload);
 
-      const result = await service.validateToken('valid-token');
+      const result = service.validateToken('valid-token');
 
       expect(result).toEqual(payload);
     });
 
-    it('should return null for invalid token', async () => {
+    it('should return null for invalid token', () => {
       jest.spyOn(jwtService, 'verify').mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
-      const result = await service.validateToken('invalid-token');
+      const result = service.validateToken('invalid-token');
 
       expect(result).toBeNull();
     });

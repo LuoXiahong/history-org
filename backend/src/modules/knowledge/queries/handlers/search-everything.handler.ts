@@ -6,6 +6,62 @@ import { SearchResultDto } from '../../dto/search-result.dto';
 import { PersonResponseDto } from '../../dto/person-response.dto';
 import { EventResponseDto } from '../../dto/event-response.dto';
 
+interface PersonWithRelations {
+  id: string;
+  fullName: string;
+  firstName: string | null;
+  lastName: string | null;
+  title: string | null;
+  birthDate: Date | null;
+  deathDate: Date | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  events: Array<{
+    role: string | null;
+    context: string | null;
+    event: {
+      id: string;
+      title: string;
+      dateStart: Date | null;
+    };
+  }>;
+  documents: Array<{
+    context: string | null;
+    document: {
+      id: string;
+      filePath: string;
+      fileName: string;
+    };
+  }>;
+}
+
+interface EventWithRelations {
+  id: string;
+  title: string;
+  description: string | null;
+  dateStart: Date | null;
+  dateEnd: Date | null;
+  dateType: string | null;
+  location: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  document: {
+    id: string;
+    filePath: string;
+    fileName: string;
+    title: string | null;
+  } | null;
+  relatedPersons: Array<{
+    role: string | null;
+    context: string | null;
+    person: {
+      id: string;
+      fullName: string;
+    };
+  }>;
+}
+
 @Injectable()
 @QueryHandler(SearchEverythingQuery)
 export class SearchEverythingHandler implements IQueryHandler<SearchEverythingQuery> {
@@ -113,14 +169,14 @@ export class SearchEverythingHandler implements IQueryHandler<SearchEverythingQu
     ]);
 
     return {
-      persons: persons.map(this.mapPersonToDto),
-      events: events.map(this.mapEventToDto),
+      persons: persons.map((person) => this.mapPersonToDto(person)),
+      events: events.map((event) => this.mapEventToDto(event)),
       totalPersons,
       totalEvents,
     };
   }
 
-  private mapPersonToDto(person: any): PersonResponseDto {
+  private mapPersonToDto(person: PersonWithRelations): PersonResponseDto {
     return {
       id: person.id,
       fullName: person.fullName,
@@ -130,14 +186,14 @@ export class SearchEverythingHandler implements IQueryHandler<SearchEverythingQu
       birthDate: person.birthDate ?? undefined,
       deathDate: person.deathDate ?? undefined,
       description: person.description ?? undefined,
-      events: person.events.map((personEvent: any) => ({
+      events: person.events.map((personEvent) => ({
         id: personEvent.event.id,
         title: personEvent.event.title,
         dateStart: personEvent.event.dateStart ?? undefined,
         role: personEvent.role ?? undefined,
         context: personEvent.context ?? undefined,
       })),
-      documents: person.documents.map((personDocument: any) => ({
+      documents: person.documents.map((personDocument) => ({
         id: personDocument.document.id,
         filePath: personDocument.document.filePath,
         fileName: personDocument.document.fileName,
@@ -148,7 +204,7 @@ export class SearchEverythingHandler implements IQueryHandler<SearchEverythingQu
     };
   }
 
-  private mapEventToDto(event: any): EventResponseDto {
+  private mapEventToDto(event: EventWithRelations): EventResponseDto {
     return {
       id: event.id,
       title: event.title,
@@ -157,13 +213,15 @@ export class SearchEverythingHandler implements IQueryHandler<SearchEverythingQu
       dateEnd: event.dateEnd ?? undefined,
       dateType: event.dateType ?? undefined,
       location: event.location ?? undefined,
-      document: {
-        id: event.document.id,
-        filePath: event.document.filePath,
-        fileName: event.document.fileName,
-        title: event.document.title ?? undefined,
-      },
-      persons: event.relatedPersons.map((personEvent: any) => ({
+      document: event.document
+        ? {
+            id: event.document.id,
+            filePath: event.document.filePath,
+            fileName: event.document.fileName,
+            title: event.document.title ?? undefined,
+          }
+        : undefined,
+      persons: event.relatedPersons.map((personEvent) => ({
         id: personEvent.person.id,
         fullName: personEvent.person.fullName,
         role: personEvent.role ?? undefined,

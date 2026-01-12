@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
 import { OpenAIExtractorService } from '../openai-extractor.service';
 
 // Mock OpenAI before importing the service
@@ -18,7 +17,6 @@ jest.mock('openai', () => {
 
 describe('OpenAIExtractorService', () => {
   let service: OpenAIExtractorService;
-  let configService: ConfigService;
   let mockConfigService: { get: jest.Mock };
 
   beforeEach(async () => {
@@ -46,7 +44,6 @@ describe('OpenAIExtractorService', () => {
     }).compile();
 
     service = module.get<OpenAIExtractorService>(OpenAIExtractorService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   afterEach(() => {
@@ -112,11 +109,13 @@ describe('OpenAIExtractorService', () => {
         messages: [
           {
             role: 'system',
-            content: expect.stringContaining('historical data extraction'),
+            content: expect.stringContaining(
+              'historical data extraction',
+            ) as string,
           },
           {
             role: 'user',
-            content: expect.stringContaining(content),
+            content: expect.stringContaining(content) as string,
           },
         ],
         temperature: 0.3,

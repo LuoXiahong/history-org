@@ -5,9 +5,7 @@ import { DeletePersonCommand } from '../impl/delete-person.command';
 
 @Injectable()
 @CommandHandler(DeletePersonCommand)
-export class DeletePersonHandler
-  implements ICommandHandler<DeletePersonCommand>
-{
+export class DeletePersonHandler implements ICommandHandler<DeletePersonCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: DeletePersonCommand): Promise<void> {

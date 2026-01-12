@@ -7,9 +7,11 @@ describe('RolesGuard', () => {
   let guard: RolesGuard;
   let reflector: Reflector;
 
-  const createMockContext = (
-    user?: { id: string; email: string; roles: UserRole[] },
-  ): ExecutionContext => {
+  const createMockContext = (user?: {
+    id: string;
+    email: string;
+    roles: UserRole[];
+  }): ExecutionContext => {
     return {
       getHandler: jest.fn(),
       getClass: jest.fn(),
@@ -73,9 +75,7 @@ describe('RolesGuard', () => {
 
     it('should allow access when route is public', () => {
       const context = createMockContext();
-      jest
-        .spyOn(reflector, 'getAllAndOverride')
-        .mockReturnValueOnce(true); // isPublic
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValueOnce(true); // isPublic
 
       const result = guard.canActivate(context);
 

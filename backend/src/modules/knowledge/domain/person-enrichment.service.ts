@@ -3,6 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { EnrichedPersonDto } from '../dto/enriched-person.dto';
 
+interface ParsedEnrichmentResponse {
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  title?: string;
+  birthDate?: string;
+  deathDate?: string;
+  description?: string;
+}
+
 @Injectable()
 export class PersonEnrichmentService {
   private readonly openai: OpenAI | undefined;
@@ -94,9 +104,12 @@ Return a JSON object with this exact structure:
 If information is not available, use null for optional fields. Always include fullName.`;
   }
 
-  private parseResponse(responseContent: string, fallbackName?: string): EnrichedPersonDto {
+  private parseResponse(
+    responseContent: string,
+    fallbackName?: string,
+  ): EnrichedPersonDto {
     try {
-      const parsed = JSON.parse(responseContent);
+      const parsed = JSON.parse(responseContent) as ParsedEnrichmentResponse;
       return {
         fullName: parsed.fullName || fallbackName || '',
         firstName: parsed.firstName || undefined,

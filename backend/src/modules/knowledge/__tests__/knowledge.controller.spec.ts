@@ -2,12 +2,52 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import request from 'supertest';
-import { KnowledgeController } from '../knowledge.controller';
+import { App } from 'supertest/types';
 import { KnowledgeModule } from '../knowledge.module';
 import { PrismaService } from '../../../shared/infrastructure/database/prisma.service';
 
+interface PersonResponse {
+  id: string;
+  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  title?: string;
+  events: unknown[];
+  documents: unknown[];
+}
+
+interface EventResponse {
+  id: string;
+  title: string;
+  description?: string;
+  location?: string;
+  document?: unknown;
+  persons: unknown[];
+}
+
+interface SearchResponse {
+  persons: unknown[];
+  events: unknown[];
+  totalPersons: number;
+  totalEvents: number;
+}
+
+interface TimelineEventResponse {
+  id: string;
+  title: string;
+  persons: unknown[];
+  document: unknown;
+}
+
+interface EnrichedPersonResponse {
+  fullName: string;
+  id?: string;
+  events?: unknown[];
+  documents?: unknown[];
+}
+
 describe('KnowledgeController (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
   let prisma: PrismaService;
   let testPersonId: string;
   let testEventId: string;
@@ -105,11 +145,12 @@ describe('KnowledgeController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/knowledge/persons/${testPersonId}`)
         .expect(200)
-        .expect((res) => {
-          expect(res.body.id).toBe(testPersonId);
-          expect(res.body.fullName).toBe('Test Person');
-          expect(res.body.events).toBeDefined();
-          expect(res.body.documents).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as PersonResponse;
+          expect(body.id).toBe(testPersonId);
+          expect(body.fullName).toBe('Test Person');
+          expect(body.events).toBeDefined();
+          expect(body.documents).toBeDefined();
         });
     });
 
@@ -125,11 +166,12 @@ describe('KnowledgeController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/knowledge/events/${testEventId}`)
         .expect(200)
-        .expect((res) => {
-          expect(res.body.id).toBe(testEventId);
-          expect(res.body.title).toBe('Test Event');
-          expect(res.body.document).toBeDefined();
-          expect(res.body.persons).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as EventResponse;
+          expect(body.id).toBe(testEventId);
+          expect(body.title).toBe('Test Event');
+          expect(body.document).toBeDefined();
+          expect(body.persons).toBeDefined();
         });
     });
 
@@ -145,11 +187,12 @@ describe('KnowledgeController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/knowledge/search?q=Test')
         .expect(200)
-        .expect((res) => {
-          expect(res.body.persons).toBeDefined();
-          expect(res.body.events).toBeDefined();
-          expect(res.body.totalPersons).toBeDefined();
-          expect(res.body.totalEvents).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as SearchResponse;
+          expect(body.persons).toBeDefined();
+          expect(body.events).toBeDefined();
+          expect(body.totalPersons).toBeDefined();
+          expect(body.totalEvents).toBeDefined();
         });
     });
 
@@ -157,9 +200,10 @@ describe('KnowledgeController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/knowledge/search?q=Test&limit=10&offset=0')
         .expect(200)
-        .expect((res) => {
-          expect(res.body.persons).toBeDefined();
-          expect(res.body.events).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as SearchResponse;
+          expect(body.persons).toBeDefined();
+          expect(body.events).toBeDefined();
         });
     });
   });
@@ -169,13 +213,14 @@ describe('KnowledgeController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/knowledge/timeline')
         .expect(200)
-        .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
-          if (res.body.length > 0) {
-            expect(res.body[0].id).toBeDefined();
-            expect(res.body[0].title).toBeDefined();
-            expect(res.body[0].persons).toBeDefined();
-            expect(res.body[0].document).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as TimelineEventResponse[];
+          expect(Array.isArray(body)).toBe(true);
+          if (body.length > 0) {
+            expect(body[0].id).toBeDefined();
+            expect(body[0].title).toBeDefined();
+            expect(body[0].persons).toBeDefined();
+            expect(body[0].document).toBeDefined();
           }
         });
     });
@@ -186,7 +231,7 @@ describe('KnowledgeController (e2e)', () => {
           '/knowledge/timeline?dateStart=2024-01-01T00:00:00Z&dateEnd=2024-12-31T23:59:59Z',
         )
         .expect(200)
-        .expect((res) => {
+        .expect((res: request.Response) => {
           expect(Array.isArray(res.body)).toBe(true);
         });
     });
@@ -206,12 +251,13 @@ describe('KnowledgeController (e2e)', () => {
           description: 'Test description',
         })
         .expect(201)
-        .expect((res) => {
-          expect(res.body.id).toBeDefined();
-          expect(res.body.fullName).toBe('New Person');
-          expect(res.body.firstName).toBe('New');
-          expect(res.body.lastName).toBe('Person');
-          expect(res.body.title).toBe('Test Title');
+        .expect((res: request.Response) => {
+          const body = res.body as PersonResponse;
+          expect(body.id).toBeDefined();
+          expect(body.fullName).toBe('New Person');
+          expect(body.firstName).toBe('New');
+          expect(body.lastName).toBe('Person');
+          expect(body.title).toBe('Test Title');
         });
     });
 
@@ -222,9 +268,10 @@ describe('KnowledgeController (e2e)', () => {
           fullName: 'Minimal Person',
         })
         .expect(201)
-        .expect((res) => {
-          expect(res.body.id).toBeDefined();
-          expect(res.body.fullName).toBe('Minimal Person');
+        .expect((res: request.Response) => {
+          const body = res.body as PersonResponse;
+          expect(body.id).toBeDefined();
+          expect(body.fullName).toBe('Minimal Person');
         });
     });
 
@@ -247,10 +294,11 @@ describe('KnowledgeController (e2e)', () => {
           title: 'Updated Title',
         })
         .expect(200)
-        .expect((res) => {
-          expect(res.body.id).toBe(testPersonId);
-          expect(res.body.fullName).toBe('Updated Person');
-          expect(res.body.title).toBe('Updated Title');
+        .expect((res: request.Response) => {
+          const body = res.body as PersonResponse;
+          expect(body.id).toBe(testPersonId);
+          expect(body.fullName).toBe('Updated Person');
+          expect(body.title).toBe('Updated Title');
         });
     });
 
@@ -361,14 +409,15 @@ describe('KnowledgeController (e2e)', () => {
           name: 'Napoleon Bonaparte',
         })
         .expect(200)
-        .expect((res) => {
-          expect(res.body.fullName).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as EnrichedPersonResponse;
+          expect(body.fullName).toBeDefined();
           // In test mode without API key, it returns minimal data
-          expect(res.body.fullName).toBe('Napoleon Bonaparte');
+          expect(body.fullName).toBe('Napoleon Bonaparte');
           // Verify it's not a PersonResponseDto (which would have id, events, documents)
-          expect(res.body.id).toBeUndefined();
-          expect(res.body.events).toBeUndefined();
-          expect(res.body.documents).toBeUndefined();
+          expect(body.id).toBeUndefined();
+          expect(body.events).toBeUndefined();
+          expect(body.documents).toBeUndefined();
         });
     });
 
@@ -394,12 +443,13 @@ describe('KnowledgeController (e2e)', () => {
           documentId: testDocumentId,
         })
         .expect(201)
-        .expect((res) => {
-          expect(res.body.id).toBeDefined();
-          expect(res.body.title).toBe('New Event');
-          expect(res.body.description).toBe('New event description');
-          expect(res.body.location).toBe('Test Location');
-          expect(res.body.document).toBeDefined();
+        .expect((res: request.Response) => {
+          const body = res.body as EventResponse;
+          expect(body.id).toBeDefined();
+          expect(body.title).toBe('New Event');
+          expect(body.description).toBe('New event description');
+          expect(body.location).toBe('Test Location');
+          expect(body.document).toBeDefined();
         });
     });
 
@@ -411,10 +461,11 @@ describe('KnowledgeController (e2e)', () => {
           description: 'Manually created event',
         })
         .expect(201)
-        .expect((res) => {
-          expect(res.body.id).toBeDefined();
-          expect(res.body.title).toBe('Manual Event');
-          expect(res.body.document).toBeUndefined();
+        .expect((res: request.Response) => {
+          const body = res.body as EventResponse;
+          expect(body.id).toBeDefined();
+          expect(body.title).toBe('Manual Event');
+          expect(body.document).toBeUndefined();
         });
     });
 
@@ -439,11 +490,12 @@ describe('KnowledgeController (e2e)', () => {
           location: 'Updated Location',
         })
         .expect(200)
-        .expect((res) => {
-          expect(res.body.id).toBe(testEventId);
-          expect(res.body.title).toBe('Updated Event');
-          expect(res.body.description).toBe('Updated description');
-          expect(res.body.location).toBe('Updated Location');
+        .expect((res: request.Response) => {
+          const body = res.body as EventResponse;
+          expect(body.id).toBe(testEventId);
+          expect(body.title).toBe('Updated Event');
+          expect(body.description).toBe('Updated description');
+          expect(body.location).toBe('Updated Location');
         });
     });
 

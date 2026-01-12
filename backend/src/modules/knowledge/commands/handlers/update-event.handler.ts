@@ -10,9 +10,7 @@ import { EventResponseDto } from '../../dto/event-response.dto';
 
 @Injectable()
 @CommandHandler(UpdateEventCommand)
-export class UpdateEventHandler
-  implements ICommandHandler<UpdateEventCommand>
-{
+export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: UpdateEventCommand): Promise<EventResponseDto> {

@@ -27,6 +27,11 @@ export interface ExtractionResult {
   events: ExtractedEvent[];
 }
 
+interface ParsedExtractionResponse {
+  persons?: ExtractedPerson[];
+  events?: ExtractedEvent[];
+}
+
 @Injectable()
 export class OpenAIExtractorService {
   private readonly openai: OpenAI | undefined;
@@ -114,7 +119,7 @@ Be thorough but only extract entities that are clearly historical persons or eve
 
   private parseResponse(responseContent: string): ExtractionResult {
     try {
-      const parsed = JSON.parse(responseContent);
+      const parsed = JSON.parse(responseContent) as ParsedExtractionResponse;
       return {
         persons: Array.isArray(parsed.persons) ? parsed.persons : [],
         events: Array.isArray(parsed.events) ? parsed.events : [],

@@ -1,6 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { AuthenticatedUser } from '../interfaces/jwt-payload.interface';
 
+interface RequestWithUser {
+  user?: AuthenticatedUser;
+}
+
 /**
  * Extracts the authenticated user from the request
  * @param data - Optional property to extract from user object
@@ -13,8 +17,8 @@ import { AuthenticatedUser } from '../interfaces/jwt-payload.interface';
  */
 export const CurrentUser = createParamDecorator(
   (data: keyof AuthenticatedUser | undefined, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const user: AuthenticatedUser = request.user;
+    const request = ctx.switchToHttp().getRequest<RequestWithUser>();
+    const user = request.user;
 
     if (data) {
       return user?.[data];

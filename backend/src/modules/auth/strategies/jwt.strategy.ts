@@ -54,7 +54,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   private parseRoles(rolesJson: string): UserRole[] {
     try {
-      const parsed = JSON.parse(rolesJson);
+      const parsed: unknown = JSON.parse(rolesJson);
       if (Array.isArray(parsed)) {
         return parsed.filter((r) =>
           Object.values(UserRole).includes(r as UserRole),

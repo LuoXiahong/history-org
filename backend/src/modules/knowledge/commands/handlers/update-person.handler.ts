@@ -7,13 +7,10 @@ import {
 import { PrismaService } from '../../../../shared/infrastructure/database/prisma.service';
 import { UpdatePersonCommand } from '../impl/update-person.command';
 import { PersonResponseDto } from '../../dto/person-response.dto';
-import { normalizePersonName } from '../../utils/name-normalizer.util';
 
 @Injectable()
 @CommandHandler(UpdatePersonCommand)
-export class UpdatePersonHandler
-  implements ICommandHandler<UpdatePersonCommand>
-{
+export class UpdatePersonHandler implements ICommandHandler<UpdatePersonCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: UpdatePersonCommand): Promise<PersonResponseDto> {
@@ -39,10 +36,11 @@ export class UpdatePersonHandler
 
     // If fullName is being updated, check for duplicates (excluding current Person)
     if (fullName) {
-      const normalizedName = normalizePersonName(fullName);
-      const duplicatePerson = await this.prisma.$queryRaw<Array<{ id: string; fullName: string }>>`
+      const duplicatePerson = (await this.prisma.$queryRaw<
+        Array<{ id: string; fullName: string }>
+      >`
         SELECT id, fullName FROM Person WHERE LOWER(TRIM(fullName)) = LOWER(${fullName}) AND id != ${personId} LIMIT 1
-      ` as Array<{ id: string; fullName: string }>;
+      `) as Array<{ id: string; fullName: string }>;
 
       if (duplicatePerson && duplicatePerson.length > 0) {
         throw new ConflictException(
