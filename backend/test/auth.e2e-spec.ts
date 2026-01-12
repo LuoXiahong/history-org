@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/shared/infrastructure/database/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -12,7 +13,8 @@ describe('Auth (e2e)', () => {
 
   beforeEach(async () => {
     // Set required environment variables for tests
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
+    process.env.JWT_SECRET =
+      process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
     process.env.JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1d';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -26,7 +28,6 @@ describe('Auth (e2e)', () => {
     app.setGlobalPrefix('api/v1');
 
     // Setup cookie parser and CORS
-    const cookieParser = require('cookie-parser');
     app.use(cookieParser());
     app.enableCors({
       origin: 'http://localhost:5173',
@@ -69,7 +70,10 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const cookieHeader = response.headers['set-cookie'][0];
+      const setCookieHeader = response.headers['set-cookie'];
+      const cookieHeader = Array.isArray(setCookieHeader)
+        ? setCookieHeader[0]
+        : String(setCookieHeader);
       expect(cookieHeader).toContain('access_token=');
       expect(cookieHeader).toContain('HttpOnly');
       expect(cookieHeader).toContain('SameSite=Strict');
@@ -98,7 +102,12 @@ describe('Auth (e2e)', () => {
         .send({ email: 'test@example.com', password: 'password123' })
         .expect(200);
 
-      const cookies = loginResponse.headers['set-cookie'];
+      const setCookieHeader = loginResponse.headers['set-cookie'];
+      const cookies = Array.isArray(setCookieHeader)
+        ? setCookieHeader
+        : setCookieHeader
+          ? [String(setCookieHeader)]
+          : [];
 
       // Use cookie to access protected endpoint
       const meResponse = await request(app.getHttpServer())
@@ -140,7 +149,10 @@ describe('Auth (e2e)', () => {
         .expect(201);
 
       expect(response.headers['set-cookie']).toBeDefined();
-      const cookieHeader = response.headers['set-cookie'][0];
+      const setCookieHeader = response.headers['set-cookie'];
+      const cookieHeader = Array.isArray(setCookieHeader)
+        ? setCookieHeader[0]
+        : String(setCookieHeader);
       expect(cookieHeader).toContain('access_token=');
       expect(cookieHeader).toContain('HttpOnly');
       expect(response.body).toMatchObject({
@@ -190,19 +202,27 @@ describe('Auth (e2e)', () => {
         .post('/api/v1/auth/login')
         .send({ email: 'test@example.com', password: 'password123' });
 
-      const cookies = loginResponse.headers['set-cookie'];
+      const setCookieHeader = loginResponse.headers['set-cookie'];
+      const cookies = Array.isArray(setCookieHeader)
+        ? setCookieHeader
+        : setCookieHeader
+          ? [String(setCookieHeader)]
+          : [];
 
       // Logout
       const logoutResponse = await request(app.getHttpServer())
         .post('/api/v1/auth/logout')
-        .set('Cookie', cookies || [])
+        .set('Cookie', cookies)
         .expect(204);
 
       // Cookie should be cleared (maxAge=0 or Expires in past)
       const clearCookieHeader = logoutResponse.headers['set-cookie'];
       expect(clearCookieHeader).toBeDefined();
-      expect(clearCookieHeader[0]).toContain('access_token=');
-      expect(clearCookieHeader[0]).toMatch(/Max-Age=0|Expires=/);
+      const clearCookieString = Array.isArray(clearCookieHeader)
+        ? clearCookieHeader[0]
+        : String(clearCookieHeader);
+      expect(clearCookieString).toContain('access_token=');
+      expect(clearCookieString).toMatch(/Max-Age=0|Expires=/);
     });
   });
 
@@ -275,9 +295,7 @@ describe('Auth (e2e)', () => {
     });
 
     it('should reject request without authentication', async () => {
-      await request(app.getHttpServer())
-        .get('/api/v1/auth/me')
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/v1/auth/me').expect(401);
     });
   });
 });

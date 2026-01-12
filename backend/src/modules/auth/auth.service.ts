@@ -124,7 +124,7 @@ export class AuthService {
     };
   }
 
-  async logout(res: Response): Promise<void> {
+  logout(res: Response): void {
     res.clearCookie('access_token', this.cookieOptions);
   }
 

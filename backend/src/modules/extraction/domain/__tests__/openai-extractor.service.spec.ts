@@ -67,8 +67,9 @@ describe('OpenAIExtractorService', () => {
       ],
     }).compile();
 
-    const testService =
-      testModule.get<OpenAIExtractorService>(OpenAIExtractorService);
+    const testService = testModule.get<OpenAIExtractorService>(
+      OpenAIExtractorService,
+    );
     const result = await testService.extractEntities('Test content');
 
     expect(result.persons).toEqual([]);

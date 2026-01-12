@@ -57,7 +57,8 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'User registration',
-    description: 'Creates a new user account and sets httpOnly cookie with JWT token',
+    description:
+      'Creates a new user account and sets httpOnly cookie with JWT token',
   })
   @ApiBody({ type: RegisterDto })
   @ApiResponse({
@@ -90,8 +91,8 @@ export class AuthController {
     status: HttpStatus.NO_CONTENT,
     description: 'Logout successful',
   })
-  async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
-    return this.authService.logout(res);
+  logout(@Res({ passthrough: true }) res: Response): void {
+    this.authService.logout(res);
   }
 
   @Get('me')

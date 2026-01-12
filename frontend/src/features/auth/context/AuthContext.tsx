@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import type {
-  User,
   AuthState,
   LoginCredentials,
   RegisterCredentials,

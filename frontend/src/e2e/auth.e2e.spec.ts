@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Auth Flow with Cookies', () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ context }) => {
     // Clear all cookies before each test
     await context.clearCookies();
   });

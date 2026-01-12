@@ -12,7 +12,8 @@ import {
 
 const cookieExtractor = (req: Request): string | null => {
   if (req && req.cookies) {
-    return req.cookies['access_token'] || null;
+    const token = req.cookies['access_token'] as unknown;
+    return typeof token === 'string' ? token : null;
   }
   return null;
 };

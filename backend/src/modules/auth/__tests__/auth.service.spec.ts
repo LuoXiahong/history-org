@@ -88,8 +88,9 @@ describe('AuthService', () => {
       prisma.user.update.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
+      const cookieFn = jest.fn();
       const mockRes = {
-        cookie: jest.fn(),
+        cookie: cookieFn,
       } as unknown as Response;
 
       const result = await service.login(
@@ -107,7 +108,7 @@ describe('AuthService', () => {
         roles: [UserRole.USER],
       });
 
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(cookieFn).toHaveBeenCalledWith(
         'access_token',
         'mock-jwt-token',
         expect.objectContaining({
@@ -125,7 +126,8 @@ describe('AuthService', () => {
 
     it('should reject login with invalid email', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
-      const mockRes = { cookie: jest.fn() } as unknown as Response;
+      const cookieFn = jest.fn();
+      const mockRes = { cookie: cookieFn } as unknown as Response;
 
       await expect(
         service.login(
@@ -137,13 +139,14 @@ describe('AuthService', () => {
         ),
       ).rejects.toThrow(UnauthorizedException);
 
-      expect(mockRes.cookie).not.toHaveBeenCalled();
+      expect(cookieFn).not.toHaveBeenCalled();
     });
 
     it('should reject login with invalid password', async () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-      const mockRes = { cookie: jest.fn() } as unknown as Response;
+      const cookieFn = jest.fn();
+      const mockRes = { cookie: cookieFn } as unknown as Response;
 
       await expect(
         service.login(
@@ -155,7 +158,7 @@ describe('AuthService', () => {
         ),
       ).rejects.toThrow(UnauthorizedException);
 
-      expect(mockRes.cookie).not.toHaveBeenCalled();
+      expect(cookieFn).not.toHaveBeenCalled();
     });
 
     it('should reject login for deactivated user', async () => {
@@ -163,7 +166,8 @@ describe('AuthService', () => {
         ...mockUser,
         isActive: false,
       });
-      const mockRes = { cookie: jest.fn() } as unknown as Response;
+      const cookieFn = jest.fn();
+      const mockRes = { cookie: cookieFn } as unknown as Response;
 
       await expect(
         service.login(
@@ -175,7 +179,7 @@ describe('AuthService', () => {
         ),
       ).rejects.toThrow(UnauthorizedException);
 
-      expect(mockRes.cookie).not.toHaveBeenCalled();
+      expect(cookieFn).not.toHaveBeenCalled();
     });
   });
 
@@ -185,8 +189,9 @@ describe('AuthService', () => {
       prisma.user.create.mockResolvedValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword123');
 
+      const cookieFn = jest.fn();
       const mockRes = {
-        cookie: jest.fn(),
+        cookie: cookieFn,
       } as unknown as Response;
 
       const result = await service.register(
@@ -205,7 +210,7 @@ describe('AuthService', () => {
         roles: [UserRole.USER],
       });
 
-      expect(mockRes.cookie).toHaveBeenCalledWith(
+      expect(cookieFn).toHaveBeenCalledWith(
         'access_token',
         'mock-jwt-token',
         expect.objectContaining({
@@ -228,7 +233,8 @@ describe('AuthService', () => {
 
     it('should reject registration with existing email', async () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
-      const mockRes = { cookie: jest.fn() } as unknown as Response;
+      const cookieFn = jest.fn();
+      const mockRes = { cookie: cookieFn } as unknown as Response;
 
       await expect(
         service.register(
@@ -240,14 +246,15 @@ describe('AuthService', () => {
         ),
       ).rejects.toThrow(ConflictException);
 
-      expect(mockRes.cookie).not.toHaveBeenCalled();
+      expect(cookieFn).not.toHaveBeenCalled();
     });
 
     it('should hash password before saving user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
-      const mockRes = { cookie: jest.fn() } as unknown as Response;
+      const cookieFn = jest.fn();
+      const mockRes = { cookie: cookieFn } as unknown as Response;
 
       await service.register(
         {
@@ -269,14 +276,15 @@ describe('AuthService', () => {
   });
 
   describe('logout', () => {
-    it('should clear access_token cookie', async () => {
+    it('should clear access_token cookie', () => {
+      const clearCookieFn = jest.fn();
       const mockRes = {
-        clearCookie: jest.fn(),
+        clearCookie: clearCookieFn,
       } as unknown as Response;
 
-      await service.logout(mockRes);
+      service.logout(mockRes);
 
-      expect(mockRes.clearCookie).toHaveBeenCalledWith(
+      expect(clearCookieFn).toHaveBeenCalledWith(
         'access_token',
         expect.objectContaining({
           httpOnly: true,
