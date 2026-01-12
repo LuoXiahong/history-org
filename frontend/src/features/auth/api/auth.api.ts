@@ -1,23 +1,26 @@
 import { apiClient } from '../../../lib/axios';
 import type {
+  AuthResponse,
   LoginCredentials,
   RegisterCredentials,
   User,
 } from '../types/auth.types';
 
 export const authApi = {
-  login: async (credentials: LoginCredentials): Promise<User> => {
-    const response = await apiClient.post<User>('/auth/login', credentials);
+  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>(
+      '/auth/login',
+      credentials,
+    );
     return response.data;
   },
 
-  register: async (credentials: RegisterCredentials): Promise<User> => {
-    const response = await apiClient.post<User>('/auth/register', credentials);
+  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>(
+      '/auth/register',
+      credentials,
+    );
     return response.data;
-  },
-
-  logout: async (): Promise<void> => {
-    await apiClient.post('/auth/logout');
   },
 
   getCurrentUser: async (): Promise<User> => {

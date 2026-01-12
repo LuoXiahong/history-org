@@ -1,12 +1,27 @@
 import axios from 'axios';
 
+const TOKEN_KEY = 'history_org_token';
+
 export const apiClient = axios.create({
   baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Essential for cookies
 });
+
+// Request interceptor - adds JWT token to requests
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 // Response interceptor (for error handling)
 apiClient.interceptors.response.use(
@@ -21,8 +36,8 @@ apiClient.interceptors.response.use(
 
       // Handle 401 Unauthorized - token expired or invalid
       if (status === 401) {
-        // Clear any remaining localStorage auth data (migration cleanup)
-        localStorage.removeItem('history_org_token');
+        // Clear stored auth data
+        localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem('history_org_user');
 
         // Redirect to login if not already there

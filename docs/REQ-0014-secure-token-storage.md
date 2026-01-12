@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `APPLIED` |
+| **Status** | `TODO` |
 | **Priority** | Critical |
 | **Complexity** | Medium |
 | **Estimated Effort** | 4-6 hours |

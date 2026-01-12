@@ -6,12 +6,11 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../shared/infrastructure/database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtPayload, UserRole } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -19,21 +18,13 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly saltRounds = 12;
 
-  private readonly cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    path: '/',
-  };
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  async login(dto: LoginDto, res: Response): Promise<UserResponseDto> {
+  async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -60,25 +51,15 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    const roles = this.parseRoles(user.roles);
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      roles,
-    };
-
-    const accessToken = this.jwtService.sign(payload);
-    res.cookie('access_token', accessToken, this.cookieOptions);
-
-    return {
+    return this.generateAuthResponse({
       id: user.id,
       email: user.email,
-      name: user.name ?? undefined,
-      roles,
-    };
+      name: user.name,
+      roles: this.parseRoles(user.roles),
+    });
   }
 
-  async register(dto: RegisterDto, res: Response): Promise<UserResponseDto> {
+  async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -101,26 +82,12 @@ export class AuthService {
 
     this.logger.log(`New user registered: ${user.id}`);
 
-    const roles = [UserRole.USER];
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      roles,
-    };
-
-    const accessToken = this.jwtService.sign(payload);
-    res.cookie('access_token', accessToken, this.cookieOptions);
-
-    return {
+    return this.generateAuthResponse({
       id: user.id,
       email: user.email,
-      name: user.name ?? undefined,
-      roles,
-    };
-  }
-
-  async logout(res: Response): Promise<void> {
-    res.clearCookie('access_token', this.cookieOptions);
+      name: user.name,
+      roles: [UserRole.USER],
+    });
   }
 
   validateToken(token: string): JwtPayload | null {
@@ -131,6 +98,52 @@ export class AuthService {
     }
   }
 
+  private generateAuthResponse(user: {
+    id: string;
+    email: string;
+    name: string | null;
+    roles: UserRole[];
+  }): AuthResponseDto {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const expiresIn = this.getExpirationSeconds();
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      tokenType: 'Bearer',
+      expiresIn,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name ?? undefined,
+        roles: user.roles,
+      },
+    };
+  }
+
+  private getExpirationSeconds(): number {
+    const expiration = this.configService.get<string>('JWT_EXPIRATION', '1d');
+
+    // Parse expiration string (e.g., '1d', '2h', '30m')
+    const match = expiration.match(/^(\d+)([smhd])$/);
+    if (!match) return 86400; // Default to 1 day
+
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+
+    const multipliers: Record<string, number> = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
+
+    return value * (multipliers[unit] || 86400);
+  }
 
   private parseRoles(rolesJson: string): UserRole[] {
     try {

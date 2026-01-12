@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Get,
-  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,11 +13,10 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
-import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { UserResponseDto } from './dto/auth-response.dto';
+import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './interfaces/jwt-payload.interface';
@@ -33,36 +31,33 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'User login',
-    description: 'Authenticates a user and sets a JWT token in httpOnly cookie',
+    description: 'Authenticates a user and returns a JWT token',
   })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Login successful',
-    type: UserResponseDto,
+    type: AuthResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Invalid credentials',
   })
-  async login(
-    @Body() dto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<UserResponseDto> {
-    return this.authService.login(dto, res);
+  async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
+    return this.authService.login(dto);
   }
 
   @Public()
   @Post('register')
   @ApiOperation({
     summary: 'User registration',
-    description: 'Creates a new user account and sets a JWT token in httpOnly cookie',
+    description: 'Creates a new user account and returns a JWT token',
   })
   @ApiBody({ type: RegisterDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Registration successful',
-    type: UserResponseDto,
+    type: AuthResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
@@ -72,30 +67,8 @@ export class AuthController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data',
   })
-  async register(
-    @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<UserResponseDto> {
-    return this.authService.register(dto, res);
-  }
-
-  @Post('logout')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'User logout',
-    description: 'Clears the authentication cookie',
-  })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
-    description: 'Logout successful',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Authentication required',
-  })
-  async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
-    return this.authService.logout(res);
+  async register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
+    return this.authService.register(dto);
   }
 
   @Get('me')
