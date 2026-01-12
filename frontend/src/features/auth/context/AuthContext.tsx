@@ -96,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: false,
         isLoading: false,
       });
+      // Navigate to login after logout
+      // Note: Navigation is handled by ProtectedRoute when isAuthenticated becomes false
     }
   }, []);
 

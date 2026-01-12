@@ -25,8 +25,10 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('history_org_token');
         localStorage.removeItem('history_org_user');
 
-        // Redirect to login if not already there
-        if (!window.location.pathname.includes('/login')) {
+        // Redirect to login if not already on auth pages (login/register)
+        const isAuthPage = window.location.pathname.includes('/login') ||
+                           window.location.pathname.includes('/register');
+        if (!isAuthPage) {
           window.location.href = '/login';
         }
       }

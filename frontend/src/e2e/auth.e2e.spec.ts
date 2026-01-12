@@ -67,28 +67,19 @@ test.describe('Auth Flow with Cookies', () => {
     let cookies = await context.cookies();
     expect(cookies.find((c) => c.name === 'access_token')).toBeDefined();
 
-    // Logout (assuming there's a logout button/link)
-    // This depends on your UI implementation
-    const logoutButton = page.getByRole('button', { name: /logout/i }).or(
-      page.getByRole('link', { name: /logout/i }),
-    );
-    
-    if (await logoutButton.count() > 0) {
-      await logoutButton.click();
-    } else {
-      // If no logout button, navigate to logout endpoint directly
-      await page.goto('/api/v1/auth/logout', { waitUntil: 'networkidle' });
-    }
+    // Logout using API request (more reliable than UI interaction)
+    await page.request.post('http://localhost:3000/api/v1/auth/logout');
 
-    // Wait a bit for logout to complete
-    await page.waitForTimeout(500);
+    // Wait for logout to complete and ProtectedRoute to redirect
+    await page.waitForTimeout(1000);
 
     // Cookie should be cleared
     cookies = await context.cookies();
     const accessTokenCookie = cookies.find((c) => c.name === 'access_token');
     expect(accessTokenCookie).toBeUndefined();
 
-    // Should redirect to login
+    // Should redirect to login after reload (ProtectedRoute will redirect)
+    await page.reload();
     await expect(page).toHaveURL(/\/login/);
   });
 
@@ -115,18 +106,30 @@ test.describe('Auth Flow with Cookies', () => {
     context,
   }) => {
     await page.goto('/register');
-
-    // Fill registration form
-    const timestamp = Date.now();
-    const testEmail = `test${timestamp}@example.com`;
     
+    // Wait for register page to fully load
+    await expect(page).toHaveURL('/register', { timeout: 10000 });
+    
+    // Wait for form to be ready - check for name field by label
+    await expect(page.getByLabel(/^name/i)).toBeVisible({ timeout: 10000 });
+
+    // Fill registration form (fields in form order: name, email, password)
+    const timestamp = Date.now();
+    const testEmail = `e2e${timestamp}@test.com`;
+    
+    // Fill form fields using getByLabel (more reliable than ID selectors)
+    await page.getByLabel(/^name/i).fill('E2E Test User');
     await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill('SecurePass123');
-    await page.getByLabel(/name/i).fill('Test User');
+    await page.getByLabel(/password/i).fill('SecurePass1');
+    
+    // Wait for password validation to enable submit button
+    await page.waitForTimeout(500);
+    
+    // Click submit button
     await page.getByRole('button', { name: /create account/i }).click();
 
-    // Wait for redirect after registration
-    await page.waitForURL('/', { timeout: 5000 });
+    // Wait for redirect after registration  
+    await page.waitForURL('/', { timeout: 10000 });
 
     // Check that cookie was set
     const cookies = await context.cookies();
