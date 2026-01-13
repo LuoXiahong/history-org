@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `DRAFT` |
+| **Status** | `APPLIED` |
 | **Priority** | Critical |
 | **Complexity** | High |
 | **Estimated Effort** | 8-12 hours |
@@ -14,6 +14,13 @@
 ## 1. Overview
 
 This requirement creates a complete authentication and authorization module using JWT tokens and Passport.js. The module provides secure user authentication, role-based access control (RBAC), and reusable security decorators.
+
+> [!IMPORTANT]
+> **Architecture Decision:** This module uses the **Service Pattern** (AuthController → AuthService) instead of CQRS. See [REQ-0018](./REQ-0018-auth-architecture-decision.md) for the full rationale. Key reasons:
+> - Auth operations are simple CRUD (login, register, logout)
+> - No cross-module events or async workflows
+> - Passport.js integrates naturally with services
+> - Lower overhead for frequently-called endpoints
 
 ## 2. Objectives
 

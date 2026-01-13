@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `TODO` |
+| **Status** | `DONE` |
 | **Priority** | Low |
 | **Complexity** | Low |
 | **Estimated Effort** | 1-2 hours |

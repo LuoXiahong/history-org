@@ -218,14 +218,14 @@ Last updated: 2026-01-12 (after REQ-0015 and REQ-0009 completion)
 
 ---
 
-### REQ-0012: Resilience & Error Handling (TODO)
-**Required:**
-- [ ] Global AllExceptionsFilter
-- [ ] Standardized error response format
-- [ ] Domain exception hierarchy
-- [ ] Rate limiting with @nestjs/throttler
-- [ ] Request timeout interceptor
-- [ ] Production error message hiding
+### REQ-0012: Resilience & Error Handling ✅ DONE
+- Global AllExceptionsFilter implemented
+- Standardized error response format (ErrorResponseDto)
+- Domain exception hierarchy (DomainException, EntityNotFoundException, etc.)
+- Rate limiting with @nestjs/throttler (tiered: short/medium/long)
+- Request timeout interceptor
+- Production error message hiding
+- E2E tests passing
 
 ---
 
@@ -255,13 +255,16 @@ Last updated: 2026-01-12 (after REQ-0015 and REQ-0009 completion)
 
 ---
 
-### REQ-0018: Auth Module Architecture Decision (TODO)
-**Required:**
-- [ ] Verify Auth module uses Service Pattern (not CQRS)
-- [ ] Update REQ-0010 documentation to reflect Service Pattern
-- [ ] Document architectural decision with rationale
-- [ ] Ensure no CQRS references in auth module
-- [ ] Add verification tests
+### REQ-0018: Auth Module Architecture Decision ✅ DONE\n- Verified Auth module uses Service Pattern (no CqrsModule)\n- Updated REQ-0010 documentation with architecture rationale\n- No commands/queries/events directories in auth module\n- AuthController calls AuthService directly
+
+---
+
+### REQ-0019: Knowledge Module Architecture Simplification ✅ DONE
+- Refactored Knowledge module from CQRS to standard Service pattern
+- Consolidated 10 handlers into a single `KnowledgeService`
+- Removed redundant `commands/` and `queries/` directories
+- Updated `KnowledgeController` and `KnowledgeModule`
+- Verified with E2E tests and successful build
 
 ---
 
