@@ -1,54 +1,42 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
   Body,
-  Query,
-  ParseIntPipe,
-  DefaultValuePipe,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
-import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiQuery,
   ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { GetPersonQuery } from './queries/impl/get-person.query';
-import { GetEventQuery } from './queries/impl/get-event.query';
-import { SearchEverythingQuery } from './queries/impl/search-everything.query';
-import { GetTimelineQuery } from './queries/impl/get-timeline.query';
-import { CreatePersonCommand } from './commands/impl/create-person.command';
-import { UpdatePersonCommand } from './commands/impl/update-person.command';
-import { DeletePersonCommand } from './commands/impl/delete-person.command';
-import { CreateEventCommand } from './commands/impl/create-event.command';
-import { UpdateEventCommand } from './commands/impl/update-event.command';
-import { DeleteEventCommand } from './commands/impl/delete-event.command';
-import { PersonResponseDto } from './dto/person-response.dto';
+import { PersonEnrichmentService } from './domain/person-enrichment.service';
+import { CreateEventDto } from './dto/create-event.dto';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { EnrichPersonRequestDto } from './dto/enrich-person-request.dto';
+import { EnrichedPersonDto } from './dto/enriched-person.dto';
 import { EventResponseDto } from './dto/event-response.dto';
+import { PersonResponseDto } from './dto/person-response.dto';
+import { SearchQueryDto } from './dto/search-query.dto';
 import { SearchResultDto } from './dto/search-result.dto';
 import { TimelineEventDto } from './dto/timeline-event.dto';
-import { CreatePersonDto } from './dto/create-person.dto';
-import { UpdatePersonDto } from './dto/update-person.dto';
-import { CreateEventDto } from './dto/create-event.dto';
+import { TimelineQueryDto } from './dto/timeline-query.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { EnrichedPersonDto } from './dto/enriched-person.dto';
-import { EnrichPersonRequestDto } from './dto/enrich-person-request.dto';
-import { PersonEnrichmentService } from './domain/person-enrichment.service';
+import { UpdatePersonDto } from './dto/update-person.dto';
+import { KnowledgeService } from './knowledge.service';
 
 @ApiTags('knowledge')
 @Controller('knowledge')
 export class KnowledgeController {
   constructor(
-    private readonly queryBus: QueryBus,
-    private readonly commandBus: CommandBus,
+    private readonly knowledgeService: KnowledgeService,
     private readonly enrichmentService: PersonEnrichmentService,
   ) {}
 
@@ -67,8 +55,7 @@ export class KnowledgeController {
     description: 'Person not found',
   })
   async getPerson(@Param('id') id: string): Promise<PersonResponseDto> {
-    const query = new GetPersonQuery(id);
-    return await this.queryBus.execute(query);
+    return await this.knowledgeService.getPerson(id);
   }
 
   @Get('events/:id')
@@ -86,81 +73,31 @@ export class KnowledgeController {
     description: 'Event not found',
   })
   async getEvent(@Param('id') id: string): Promise<EventResponseDto> {
-    const query = new GetEventQuery(id);
-    return await this.queryBus.execute(query);
+    return await this.knowledgeService.getEvent(id);
   }
 
   @Get('search')
   @ApiOperation({ summary: 'Search across persons and events' })
-  @ApiQuery({ name: 'q', description: 'Search query', required: true })
-  @ApiQuery({
-    name: 'limit',
-    description: 'Limit results',
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'offset',
-    description: 'Offset for pagination',
-    required: false,
-    type: Number,
-  })
   @ApiResponse({
     status: 200,
     description: 'Search results',
     type: SearchResultDto,
   })
-  async search(
-    @Query('q') q: string,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-  ): Promise<SearchResultDto> {
-    const query = new SearchEverythingQuery(q, limit, offset);
-    return await this.queryBus.execute(query);
+  async search(@Query() query: SearchQueryDto): Promise<SearchResultDto> {
+    return await this.knowledgeService.search(query);
   }
 
   @Get('timeline')
   @ApiOperation({ summary: 'Get timeline of events within a date range' })
-  @ApiQuery({
-    name: 'dateStart',
-    description: 'Start date (ISO 8601)',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'dateEnd',
-    description: 'End date (ISO 8601)',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'limit',
-    description: 'Limit results',
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'offset',
-    description: 'Offset for pagination',
-    required: false,
-    type: Number,
-  })
   @ApiResponse({
     status: 200,
     description: 'Timeline events',
     type: [TimelineEventDto],
   })
   async getTimeline(
-    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
-    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-    @Query('dateStart') dateStart?: string,
-    @Query('dateEnd') dateEnd?: string,
+    @Query() query: TimelineQueryDto,
   ): Promise<TimelineEventDto[]> {
-    const query = new GetTimelineQuery(
-      dateStart ? new Date(dateStart) : undefined,
-      dateEnd ? new Date(dateEnd) : undefined,
-      limit,
-      offset,
-    );
-    return await this.queryBus.execute(query);
+    return await this.knowledgeService.getTimeline(query);
   }
 
   @Post('enrich-person')
@@ -191,16 +128,7 @@ export class KnowledgeController {
     description: 'Person with this name already exists',
   })
   async createPerson(@Body() dto: CreatePersonDto): Promise<PersonResponseDto> {
-    const command = new CreatePersonCommand(
-      dto.fullName,
-      dto.firstName,
-      dto.lastName,
-      dto.title,
-      dto.birthDate ? new Date(dto.birthDate) : undefined,
-      dto.deathDate ? new Date(dto.deathDate) : undefined,
-      dto.description,
-    );
-    return await this.commandBus.execute(command);
+    return await this.knowledgeService.createPerson(dto);
   }
 
   @Put('persons/:id')
@@ -224,17 +152,7 @@ export class KnowledgeController {
     @Param('id') id: string,
     @Body() dto: UpdatePersonDto,
   ): Promise<PersonResponseDto> {
-    const command = new UpdatePersonCommand(
-      id,
-      dto.fullName,
-      dto.firstName,
-      dto.lastName,
-      dto.title,
-      dto.birthDate ? new Date(dto.birthDate) : undefined,
-      dto.deathDate ? new Date(dto.deathDate) : undefined,
-      dto.description,
-    );
-    return await this.commandBus.execute(command);
+    return await this.knowledgeService.updatePerson(id, dto);
   }
 
   @Delete('persons/:id')
@@ -250,8 +168,7 @@ export class KnowledgeController {
     description: 'Person not found',
   })
   async deletePerson(@Param('id') id: string): Promise<void> {
-    const command = new DeletePersonCommand(id);
-    await this.commandBus.execute(command);
+    await this.knowledgeService.deletePerson(id);
   }
 
   @Post('events')
@@ -267,16 +184,7 @@ export class KnowledgeController {
     description: 'Invalid document ID',
   })
   async createEvent(@Body() dto: CreateEventDto): Promise<EventResponseDto> {
-    const command = new CreateEventCommand(
-      dto.title,
-      dto.description,
-      dto.dateStart ? new Date(dto.dateStart) : undefined,
-      dto.dateEnd ? new Date(dto.dateEnd) : undefined,
-      dto.dateType,
-      dto.location,
-      dto.documentId,
-    );
-    return await this.commandBus.execute(command);
+    return await this.knowledgeService.createEvent(dto);
   }
 
   @Put('events/:id')
@@ -300,17 +208,7 @@ export class KnowledgeController {
     @Param('id') id: string,
     @Body() dto: UpdateEventDto,
   ): Promise<EventResponseDto> {
-    const command = new UpdateEventCommand(
-      id,
-      dto.title,
-      dto.description,
-      dto.dateStart ? new Date(dto.dateStart) : undefined,
-      dto.dateEnd ? new Date(dto.dateEnd) : undefined,
-      dto.dateType,
-      dto.location,
-      dto.documentId,
-    );
-    return await this.commandBus.execute(command);
+    return await this.knowledgeService.updateEvent(id, dto);
   }
 
   @Delete('events/:id')
@@ -326,7 +224,6 @@ export class KnowledgeController {
     description: 'Event not found',
   })
   async deleteEvent(@Param('id') id: string): Promise<void> {
-    const command = new DeleteEventCommand(id);
-    await this.commandBus.execute(command);
+    await this.knowledgeService.deleteEvent(id);
   }
 }

@@ -1,10 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { KnowledgeModule } from '../knowledge.module';
 import { PrismaService } from '../../../shared/infrastructure/database/prisma.service';
+import { KnowledgeModule } from '../knowledge.module';
 
 interface PersonResponse {
   id: string;
@@ -55,7 +54,7 @@ describe('KnowledgeController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [KnowledgeModule, CqrsModule],
+      imports: [KnowledgeModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();

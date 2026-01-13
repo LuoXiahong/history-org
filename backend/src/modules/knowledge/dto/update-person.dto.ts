@@ -1,39 +1,83 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsDateString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import {
+  IsDateString,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpdatePersonDto {
-  @ApiProperty({ required: false, description: 'Full name of the person' })
+  @ApiPropertyOptional({
+    description: 'Full name of the person',
+    example: 'Napoleon Bonaparte',
+    minLength: 2,
+    maxLength: 200,
+  })
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Full name must be a string' })
+  @MinLength(2, { message: 'Full name must be at least 2 characters' })
+  @MaxLength(200, { message: 'Full name must not exceed 200 characters' })
+  @Transform(({ value }: { value: string }) => value?.trim())
   fullName?: string;
 
-  @ApiProperty({ required: false, description: 'First name' })
+  @ApiPropertyOptional({
+    description: 'First name',
+    example: 'Napoleon',
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
+  @MaxLength(100)
+  @Transform(({ value }: { value: string }) => value?.trim())
   firstName?: string;
 
-  @ApiProperty({ required: false, description: 'Last name' })
+  @ApiPropertyOptional({
+    description: 'Last name',
+    example: 'Bonaparte',
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
+  @MaxLength(100)
+  @Transform(({ value }: { value: string }) => value?.trim())
   lastName?: string;
 
-  @ApiProperty({ required: false, description: 'Title or role' })
+  @ApiPropertyOptional({
+    description: 'Title or profession',
+    example: 'Emperor',
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
+  @MaxLength(100)
+  @Transform(({ value }: { value: string }) => value?.trim())
   title?: string;
 
-  @ApiProperty({ required: false, description: 'Birth date (ISO 8601)' })
+  @ApiPropertyOptional({
+    description: 'Birth date in ISO 8601 format',
+    example: '1769-08-15',
+  })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: 'Birth date must be a valid ISO 8601 date' })
   birthDate?: string;
 
-  @ApiProperty({ required: false, description: 'Death date (ISO 8601)' })
+  @ApiPropertyOptional({
+    description: 'Death date in ISO 8601 format',
+    example: '1821-05-05',
+  })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: 'Death date must be a valid ISO 8601 date' })
   deathDate?: string;
 
-  @ApiProperty({ required: false, description: 'Biography or description' })
+  @ApiPropertyOptional({
+    description: 'Biography or description',
+    example: 'French military and political leader',
+    maxLength: 5000,
+  })
   @IsOptional()
   @IsString()
+  @MaxLength(5000)
   description?: string;
 }
