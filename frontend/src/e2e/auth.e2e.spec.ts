@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Auth Flow with Cookies', () => {
   test.beforeEach(async ({ context }) => {
@@ -13,7 +13,7 @@ test.describe('Auth Flow with Cookies', () => {
 
     // Fill login form
     await page.getByLabel('Email address').fill('test@example.com');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password').fill('Password123');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     // Wait for redirect to dashboard/home
@@ -35,7 +35,7 @@ test.describe('Auth Flow with Cookies', () => {
     // Login first
     await page.goto('/login');
     await page.getByLabel('Email address').fill('test@example.com');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password').fill('Password123');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     // Wait for login to complete
@@ -58,7 +58,7 @@ test.describe('Auth Flow with Cookies', () => {
     // Login first
     await page.goto('/login');
     await page.getByLabel('Email address').fill('test@example.com');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password').fill('Password123');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     await page.waitForURL('/', { timeout: 5000 });
